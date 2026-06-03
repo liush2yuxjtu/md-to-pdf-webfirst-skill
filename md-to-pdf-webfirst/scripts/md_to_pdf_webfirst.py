@@ -233,7 +233,7 @@ a {{ color:var(--teal); text-decoration:none; }}
 .cover {{ position:relative; display:grid; align-content:center; overflow:hidden; background:linear-gradient(90deg, rgba(123,75,42,.13) 1px, transparent 1px) 0 0/10mm 10mm, linear-gradient(0deg, rgba(123,75,42,.11) 1px, transparent 1px) 0 0/10mm 10mm, var(--paper); }}
 .cover::after {{ content:""; position:absolute; inset:0 22mm 0 auto; width:9mm; background:var(--rust); box-shadow:11mm 0 0 var(--blue); }}
 .kicker {{ font:700 10px/1.2 "SF Mono","SFNSMono",Menlo,monospace; color:var(--rust); text-transform:uppercase; }}
-h1 {{ font-size:58px; line-height:.92; letter-spacing:0; margin:48mm 0 6mm; max-width:145mm; }}
+h1 {{ font-size:52px; line-height:.98; letter-spacing:0; margin:48mm 0 6mm; max-width:120mm; word-break:keep-all; overflow-wrap:normal; }}
 .subtitle {{ font-size:17px; max-width:132mm; color:#372f28; margin:0 0 16mm; }}
 .blackbar {{ background:var(--coal); color:#fff7e8; padding:6mm; font:11px/1 "SF Mono","SFNSMono",Menlo,monospace; width:165mm; }}
 .facts {{ display:grid; grid-template-columns:30mm 1fr; width:150mm; margin-top:12mm; font:10px/1.3 "SF Mono","SFNSMono",Menlo,monospace; }}
