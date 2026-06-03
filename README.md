@@ -40,6 +40,19 @@ The script creates:
 - `<slug>-meta.json`
 - `previews/<slug>-pdf-cover.png`
 
+## Examples
+
+This repository includes real generated examples:
+
+- [`examples/zh-cn-best-practices/best-practices.md`](examples/zh-cn-best-practices/best-practices.md)
+- [`examples/zh-cn-best-practices/best-practices.pdf`](examples/zh-cn-best-practices/best-practices.pdf)
+- [`examples/common-workflows/common-workflows.md`](examples/common-workflows/common-workflows.md)
+- [`examples/common-workflows/common-workflows.pdf`](examples/common-workflows/common-workflows.pdf)
+
+Landing page:
+
+https://liush2yuxjtu.github.io/md-to-pdf-webfirst-skill/
+
 ## Requirements
 
 - Python with `pypdf`
