@@ -8,6 +8,27 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 ## Anti-Patterns And Corrections
 
+### 0. Consulting Skin Applied To Non-Consulting Documents
+
+**Symptom:** A normal tutorial, API guide, workflow manual, or best-practices document is given a McKinsey-style redline cover, executive tone, or boardroom visual system even though the source is not a business diagnosis.
+
+**Why it matters:** Consulting polish is not universally better. For technical documentation, the job is comprehension, navigation, code readability, and trust. A boardroom skin can make a guide feel pretentious, sparse, and harder to read.
+
+**Correction:** Choose the mode from the source and the user request:
+
+- Use `technical manual` mode for guides, docs, tutorials, workflow references, API notes, and best-practices pages.
+- Use `McKinsey-style consulting` mode only when the user explicitly asks for consulting, board-report, executive strategy, or business diagnosis output.
+- Do not let a prior McKinsey-style request pollute the default Markdown-to-PDF script.
+- For technical docs, prioritize CJK-safe title layout, readable code blocks, section map, compact chapter pages, and a documentation aesthetic.
+
+### 0.1 Tail Appendix Forced Onto Its Own Page
+
+**Symptom:** A short final section such as `Related resources`, `Next steps`, or `References` is forced onto a separate mostly empty page because every second-level heading gets an unconditional page break.
+
+**Why it matters:** Page count is not quality. A technically valid PDF can still feel sloppy if the last page is mostly whitespace caused by mechanical pagination.
+
+**Correction:** For default technical-documentation mode, allow the final chapter/appendix to continue after the previous section when it is short. Keep strong page breaks for major chapters, but do not blindly force a mostly empty tail page.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.

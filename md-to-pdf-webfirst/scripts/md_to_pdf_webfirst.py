@@ -223,45 +223,46 @@ def build_html(markdown: str, meta: dict, source_label: str) -> str:
 <title>{escape(meta["title"])} · PDF-friendly web edition</title>
 <style>
 @page {{ size: A4; margin: 14mm 16mm 15mm; }}
-:root {{ --paper:#ffffff; --sheet:#ffffff; --ink:#111827; --muted:#5b6472; --red:#d0021b; --blue:#164f90; --line:#d7dce2; --soft:#f4f6f8; --coal:#111827; }}
+:root {{ --paper:#f5f1e8; --sheet:#fffdf8; --ink:#17130f; --muted:#6d6258; --rust:#b45136; --blue:#263f73; --teal:#176b63; --line:#d9cbbb; --code:#17130f; --soft:#f8f2e8; }}
 * {{ box-sizing:border-box; }}
 html {{ background:var(--paper); }}
-body {{ margin:0; color:var(--ink); background:var(--paper); font-family:Arial, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; line-height:1.46; }}
-a {{ color:var(--blue); text-decoration:none; }}
-.page {{ width:210mm; min-height:297mm; margin:0 auto 18px; padding:17mm 18mm 16mm; background:var(--sheet); border-top:1px solid var(--line); break-after:page; page-break-after:always; }}
+body {{ margin:0; color:var(--ink); background:var(--paper); font-family:"Iowan Old Style", "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif; line-height:1.52; }}
+a {{ color:var(--teal); text-decoration:none; }}
+.page {{ width:210mm; min-height:297mm; margin:0 auto 18px; padding:18mm 18mm 16mm; background:var(--sheet); box-shadow:0 12px 38px rgba(45,33,20,.14); break-after:page; page-break-after:always; }}
 .page:last-of-type {{ break-after:auto; page-break-after:auto; }}
-.cover {{ position:relative; display:grid; align-content:center; overflow:hidden; border-top:0; border-left:5mm solid var(--red); }}
-.cover::after {{ content:""; position:absolute; left:18mm; right:18mm; bottom:20mm; height:1px; background:var(--line); }}
-.kicker {{ font:700 10px/1.2 Arial, sans-serif; color:var(--red); text-transform:uppercase; letter-spacing:.12em; }}
-h1 {{ font-size:48px; line-height:1.02; letter-spacing:0; margin:38mm 0 6mm; max-width:145mm; word-break:keep-all; overflow-wrap:normal; }}
-.subtitle {{ font-size:15px; max-width:142mm; color:var(--muted); margin:0 0 14mm; }}
-.blackbar {{ border-top:2px solid var(--coal); border-bottom:1px solid var(--line); color:var(--coal); padding:4mm 0; font:700 10px/1 Arial, sans-serif; width:165mm; letter-spacing:.08em; }}
-.facts {{ display:grid; grid-template-columns:30mm 1fr; width:150mm; margin-top:10mm; font:10px/1.3 Arial, sans-serif; }}
-.facts div {{ border-bottom:1px solid var(--line); padding:3mm 2mm; }}
-.facts div:nth-child(odd) {{ color:var(--red); font-weight:700; text-transform:uppercase; }}
+.cover {{ position:relative; display:grid; align-content:center; overflow:hidden; background:linear-gradient(90deg, rgba(180,81,54,.11) 1px, transparent 1px) 0 0/10mm 10mm, linear-gradient(0deg, rgba(38,63,115,.08) 1px, transparent 1px) 0 0/10mm 10mm, var(--sheet); }}
+.cover::after {{ content:""; position:absolute; inset:0 20mm 0 auto; width:8mm; background:var(--rust); box-shadow:10mm 0 0 var(--blue); }}
+.kicker {{ font:800 10px/1.2 "SF Mono","SFNSMono",Menlo,monospace; color:var(--rust); text-transform:uppercase; letter-spacing:.08em; }}
+h1 {{ font-size:44px; line-height:1.04; letter-spacing:0; margin:46mm 0 7mm; max-width:128mm; word-break:keep-all; overflow-wrap:normal; }}
+.subtitle {{ font-size:15.5px; max-width:132mm; color:#3d332b; margin:0 0 14mm; }}
+.blackbar {{ background:var(--code); color:#fff7e8; padding:5mm 6mm; font:11px/1 "SF Mono","SFNSMono",Menlo,monospace; width:165mm; letter-spacing:.03em; }}
+.facts {{ display:grid; grid-template-columns:30mm 1fr; width:148mm; margin-top:11mm; font:10px/1.35 "SF Mono","SFNSMono",Menlo,monospace; }}
+.facts div {{ border-bottom:1px solid rgba(91,72,53,.28); padding:3mm; }}
+.facts div:nth-child(odd) {{ color:var(--rust); font-weight:700; text-transform:lowercase; }}
 .toc h2 {{ font-size:32px; margin:0 0 12mm; }}
 .toc ol {{ list-style:none; padding:0; margin:0; display:grid; gap:0; }}
 .toc li {{ display:grid; grid-template-columns:18mm 1fr; border-bottom:1px solid var(--line); padding:4mm 0; font-size:16px; }}
-.toc span {{ color:var(--red); font:700 12px/1 Arial, sans-serif; }}
+.toc span {{ color:var(--rust); font:800 12px/1 "SF Mono","SFNSMono",Menlo,monospace; }}
 .chapter {{ break-before:page; page-break-before:always; }}
 .chapter:first-child {{ break-before:auto; page-break-before:auto; }}
-.chapter-mark {{ color:var(--red); border-bottom:2px solid var(--red); width:max-content; padding:0 0 1.5mm; font:700 9px/1 Arial, sans-serif; letter-spacing:.1em; margin-bottom:4mm; }}
+.chapter:last-of-type {{ break-before:auto; page-break-before:auto; }}
+.chapter-mark {{ background:var(--rust); color:#fff7e8; width:max-content; padding:2mm 3mm; font:800 9px/1 "SF Mono","SFNSMono",Menlo,monospace; margin-bottom:4mm; }}
 h2 {{ font-size:29px; line-height:1.05; margin:0 0 7mm; }}
 h3 {{ color:var(--blue); font-size:18px; margin:8mm 0 3mm; line-height:1.18; }}
-h4 {{ color:var(--red); font:700 12px/1.25 Arial, sans-serif; margin:5mm 0 2mm; }}
+h4 {{ color:var(--rust); font:800 12px/1.25 "SF Mono","SFNSMono",Menlo,monospace; margin:5mm 0 2mm; }}
 p, li {{ font-size:11.2px; }}
 p {{ margin:0 0 3.4mm; }}
 ul, ol {{ margin:0 0 4mm 6mm; padding-left:5mm; }}
 li {{ margin-bottom:1.7mm; }}
-blockquote, .tip {{ border-left:1.8mm solid var(--red); background:var(--soft); padding:4mm 5mm; margin:4mm 0; color:var(--coal); }}
+blockquote, .tip {{ border-left:1.8mm solid var(--rust); background:var(--soft); padding:4mm 5mm; margin:4mm 0; color:#3a2b20; }}
 .steps {{ display:grid; gap:3mm; margin:4mm 0; }}
-.step {{ border:1px solid var(--line); background:var(--soft); padding:4mm 5mm 4mm 13mm; position:relative; break-inside:avoid; }}
-.step span {{ position:absolute; left:4mm; top:4mm; color:var(--red); font:700 10px/1 Arial, sans-serif; }}
-pre {{ background:var(--coal); color:#f9fafb; padding:4mm; margin:3mm 0 5mm; white-space:pre-wrap; overflow-wrap:anywhere; break-inside:avoid; }}
+.step {{ border:1px solid var(--line); background:#fffaf1; padding:4mm 5mm 4mm 13mm; position:relative; break-inside:avoid; }}
+.step span {{ position:absolute; left:4mm; top:4mm; color:var(--rust); font:800 10px/1 "SF Mono","SFNSMono",Menlo,monospace; }}
+pre {{ background:var(--code); color:#fff7e8; padding:4mm; margin:3mm 0 5mm; white-space:pre-wrap; overflow-wrap:anywhere; break-inside:avoid; }}
 code {{ font-family:"SF Mono","SFNSMono",Menlo,monospace; font-size:9.3px; }}
-p code, li code {{ background:var(--soft); color:var(--blue); border:1px solid var(--line); padding:0 1.2mm; border-radius:1mm; }}
-.footer-note {{ position:fixed; bottom:6mm; left:16mm; right:16mm; color:var(--muted); font:8px/1 Arial, sans-serif; border-top:1px solid var(--line); padding-top:2mm; }}
-@media print {{ html, body {{ background:white; }} .page {{ width:auto; min-height:267mm; margin:0; }} .cover, .toc {{ height:267mm; overflow:hidden; }} .footer-note {{ position:fixed; }} }}
+p code, li code {{ background:#ece2d4; color:var(--blue); border:1px solid #dccab7; padding:0 1.2mm; border-radius:2mm; }}
+.footer-note {{ position:fixed; bottom:6mm; left:16mm; right:16mm; color:var(--muted); font:8px/1 "SF Mono","SFNSMono",Menlo,monospace; border-top:1px solid var(--line); padding-top:2mm; }}
+@media print {{ html, body {{ background:white; }} .page {{ width:auto; min-height:267mm; margin:0; box-shadow:none; }} .cover, .toc {{ height:267mm; overflow:hidden; }} .footer-note {{ position:fixed; }} }}
 </style>
 </head>
 <body>

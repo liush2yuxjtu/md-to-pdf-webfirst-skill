@@ -78,6 +78,16 @@ Use a strong but print-safe visual direction. Good defaults:
 
 Avoid generic web-app landing pages. This is not a marketing page; it is a printable document.
 
+#### Default Technical Documentation Mode
+
+Use this mode for ordinary Markdown docs such as tutorials, best-practices guides, API notes, workflow references, and code-heavy documentation:
+
+- Prefer a documentation booklet aesthetic over a consulting deck aesthetic.
+- Optimize for comprehension: section map, stable chapter hierarchy, readable paragraphs, strong code-block contrast, and CJK-safe cover/title layout.
+- Use warm paper, restrained grid/rule details, and one or two accents when useful.
+- Do not add executive-summary pages, issue maps, or McKinsey-style redline systems unless the user explicitly requests that tone.
+- Review `anti-patterns.md`, especially the warning against applying a consulting skin to non-consulting documents.
+
 #### McKinsey-Style Consulting Mode
 
 Use this mode whenever the user asks for `麦肯锡 style`, `McKinsey style`, consulting style, board-report style, or executive strategy PDF polish. Treat it as McKinsey-inspired consulting presentation craft, not a branded clone:
