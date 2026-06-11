@@ -59,6 +59,8 @@ For local HTML reports, keep the original file untouched and extract the report 
 
 For local business diagnosis HTML reports, automatically use publication-report mode even when the prompt does not explicitly say `McKinsey`, `MGI`, or `publication`. Trigger this when the source contains business-report signals such as `RD`, `Hub`, `IYA`, `YoY`, `GIV`, `品类`, `诊断`, `行动`, multiple tables, and an executive/diagnosis title. A plain prompt like `$md-to-pdf-webfirst file:///...业务诊断报告.html` must produce a reader-ready publication PDF, not a lightly styled source-table dump.
 
+For local business overview Markdown reports, also automatically use publication-report mode when the source contains signals such as `IYA`, `PS`, `品类`, `门店`, `同比`, `环比`, `总体判断`, `值得表扬`, `有提升空间`, `Low Base`, `建议`, a business/diagnosis/overview title, or a Markdown table headed by `品类`. A plain prompt like `Md to PDF Webfirst @总览.md` must produce the same class of artifacts as business HTML mode: designed HTML, PDF, metadata, cover preview, contact sheet, and eval. Do not hand-code a one-off HTML page when the helper script can route this case. If the prompt is a non-interactive Codex verification prompt, run the bundled helper script first and treat a generic/manual converter as a skill failure.
+
 Collect basic source metadata:
 
 - line count
@@ -101,7 +103,7 @@ Use this mode for ordinary Markdown docs such as tutorials, best-practices guide
 
 Use this mode whenever the user asks for `麦肯锡 style`, `McKinsey style`, consulting style, board-report style, or executive strategy PDF polish. Treat it as McKinsey-inspired consulting presentation craft, not a branded clone:
 
-- Also use this mode automatically for business diagnosis HTML inputs with RD/Hub/IYA/YoY/category/action signals, even if the user only asks for basic conversion. Business diagnosis reports are decision documents by default, not generic documentation.
+- Also use this mode automatically for business diagnosis HTML or business overview Markdown inputs with RD/Hub/IYA/YoY/PS/category/action signals, even if the user only asks for basic conversion. Business diagnosis reports and L1 business overview Markdown files are decision documents by default, not generic documentation.
 - If the user asks for MGI-style, research-institute-style, full publication report, editorial hero, generated imagery, figure rebuilds, stable page numbers, footnotes, or references, load `publication-report/README.md` and its referenced files before designing. That module cites local adapters in `supporting-skills/` for image generation, typography, and color. Keep publication-specific rules in subfolders instead of expanding this main skill file.
 - When the user also invokes `frontend-design`, read `frontend-design.md` and apply a real frontend design pass to the PDF HTML. Commit to an aesthetic direction before coding, then verify it in PDF previews.
 - Use a crisp executive-consulting visual system: white paper, black/charcoal text, restrained gray rules, one sharp red accent, and optional deep blue only for secondary emphasis.
@@ -124,8 +126,9 @@ The HTML should include:
 - cover page
 - executive one-page summary when the source is a business report
 - issue map or operating agenda when the source contains diagnostics/actions
-- editorial research-framework page when the source is a business diagnosis HTML report
+- editorial research-framework page when the source is a business diagnosis HTML report or short business overview Markdown
 - at least one rebuilt figure/chart page before long source tables when the source has enough numeric table data
+- for short business overview Markdown, do not force 20 pages; generate a compact publication report with enough pages to cover cover, executive answer, table of contents, research framework, rebuilt figure(s), source table, actions, and source notes without blank filler
 - section map / table of contents
 - clear heading hierarchy
 - print-friendly A4 CSS
@@ -255,11 +258,13 @@ Publish unless the user says local-only.
 This skill includes a reusable helper:
 
 ```bash
-python ~/.codex/skills/md-to-pdf-webfirst/scripts/md_to_pdf_webfirst.py \
+python3 ~/.codex/skills/md-to-pdf-webfirst/scripts/md_to_pdf_webfirst.py \
   --input <markdown-file-or-url> \
   --slug <slug> \
   --out-dir outputs
 ```
+
+For plain Codex CLI prompts such as `Md to PDF Webfirst @总览.md`, use this helper as the first implementation step. Do not create an ad hoc `scripts/build-*.mjs` or one-off converter in the source folder when the helper can process the file. If the helper returns a generic booklet for a business overview Markdown source, fix the skill's detector/template first, then rerun.
 
 The script creates:
 
@@ -268,10 +273,12 @@ The script creates:
 - `<slug>.pdf`
 - `<slug>-meta.json`
 - `previews/<slug>-pdf-cover.png`
+- `previews/<slug>-contact-sheet.png` when image dependencies are available
+- `<slug>-evals.md` for business publication modes
 
 For McKinsey-style requests, prefer a slug suffix such as `mckinsey`, `consulting`, or `final`, and create a companion `<slug>-evals.md` using `evals.md`.
 
-For business diagnosis HTML inputs, the helper automatically switches to a publication report template and writes `<slug>-source.html` beside the output. If this auto-route does not trigger, stop and inspect the source detection before accepting a generic PDF.
+For business diagnosis HTML inputs, the helper automatically switches to a publication report template and writes `<slug>-source.html` beside the output. For business overview Markdown inputs such as `总览.md`, the helper automatically switches to `business-markdown-publication` mode and creates an eval beside the output. If this auto-route does not trigger, stop and inspect the source detection before accepting a generic PDF.
 
 After running it, still inspect the preview yourself. If the preview shows browser headers, wrong pagination, or obvious layout problems, fix the HTML/CSS and rerun.
 

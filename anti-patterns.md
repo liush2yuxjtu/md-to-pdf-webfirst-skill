@@ -37,6 +37,14 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Treat this as a hard fail. The evaluator must inspect a contact sheet or representative page set and cap/zero the relevant dimensions when a business report lacks publication rhythm, rebuilt figures, and visual evidence pages.
 
+### 0.0.3 Business Overview Markdown Treated As Generic Documentation
+
+**Symptom:** A short Markdown file such as `总览.md` contains `总体判断`, `IYA`, `PS 门店`, `品类`, `Low Base`, `建议`, and a category table, but the converter renders it as a generic Markdown booklet or a hand-coded one-off page because the prompt did not explicitly say `McKinsey`.
+
+**Why it matters:** L1 business overview Markdown is still a decision document. The reader needs an answer-first executive overview, rebuilt figures, source table, and action page. A plain Markdown conversion can look neat while missing the core consulting job.
+
+**Correction:** Auto-route business overview Markdown to `business-markdown-publication` mode. Generate designed HTML, PDF, metadata, cover preview, contact sheet, and eval. The output should be compact rather than padded to 20 pages, but it must include cover, executive answer, table of contents, research framework, at least one rebuilt figure, source table, action page, and source notes.
+
 ### 0.1 Tail Appendix Forced Onto Its Own Page
 
 **Symptom:** A short final section such as `Related resources`, `Next steps`, or `References` is forced onto a separate mostly empty page because every second-level heading gets an unconditional page break.
