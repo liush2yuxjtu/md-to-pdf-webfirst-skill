@@ -101,6 +101,30 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Detect narrative chains containing arrows and tree glyphs (`→`, `├──`, `└──`) and render them as a light diagnosis-flow component with visible steps. Reserve dark code blocks for commands, source code, logs, or terminal output.
 
+### 0.11 Heading Or Exhibit Label Orphaned At Page Bottom
+
+**Symptom:** A heading or exhibit label appears at the bottom of a page, while the table, diagram, or first paragraph it introduces begins on the next page.
+
+**Why it matters:** This breaks the reader's scanning flow and makes the next page feel detached. In consulting PDFs, an exhibit label without its exhibit reads as unfinished page composition.
+
+**Correction:** Keep headings with their first evidence block using a wrapper such as `keep-block`, `subsection`, or `heading-table-group` with `break-inside: avoid`. If there is not enough room left on the page, move the heading and evidence block together to the next page.
+
+### 0.12 Short Continuation Fragment Page
+
+**Symptom:** A new page contains only the final few bullets, rows, or one short paragraph from the previous analysis block, followed by a large blank area.
+
+**Why it matters:** The PDF may be technically valid, but the page rhythm feels accidental. A partner-style review expects each page to have a clear job, not leftover fragments.
+
+**Correction:** Keep compact subsections together, rebalance spacing, or move the subsection start to the next page. If a continuation is unavoidable, repeat a small continuation header so the page remains self-explanatory.
+
+### 0.13 Diagnosis Or Issue-Tree Exhibit Too Small To Scan
+
+**Symptom:** A causality map, issue tree, or diagnosis-flow exhibit is present but rendered as tiny boxes with cramped text.
+
+**Why it matters:** The exhibit is supposed to clarify the logic. If it reads as a footnote, it loses the value of turning prose into a visual.
+
+**Correction:** Give diagnosis-flow components enough padding, larger node text, and wrapping room. Split long chains into rows or grouped branches instead of forcing the full tree into one narrow line.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.

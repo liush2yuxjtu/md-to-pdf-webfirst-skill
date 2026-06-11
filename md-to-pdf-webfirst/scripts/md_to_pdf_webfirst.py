@@ -426,11 +426,12 @@ h1 {{ font-size:44px; line-height:1.04; letter-spacing:0; margin:46mm 0 7mm; max
 .chapter:last-of-type {{ break-before:auto; page-break-before:auto; }}
 .chapter-mark {{ background:var(--rust); color:#fff7e8; width:max-content; padding:2mm 3mm; font:800 9px/1 "SF Mono","SFNSMono",Menlo,monospace; margin-bottom:4mm; }}
 h2 {{ font-size:29px; line-height:1.05; margin:0 0 7mm; }}
-h2, h3, h4 {{ break-after:avoid; page-break-after:avoid; }}
+h2, h3, h4 {{ break-after:avoid-page; page-break-after:avoid; }}
 h3 {{ color:var(--blue); font-size:18px; margin:8mm 0 3mm; line-height:1.18; }}
 h3 + .tip, h3 + .callout, h3 + p, h3 + pre, h3 + .steps {{ break-before:avoid; page-break-before:avoid; }}
 .tip + p, .callout + p {{ break-before:avoid; page-break-before:avoid; }}
 h4 {{ color:var(--rust); font:800 12px/1.25 "SF Mono","SFNSMono",Menlo,monospace; margin:5mm 0 2mm; }}
+.subsection, .keep-block, .heading-table-group {{ break-inside:avoid; page-break-inside:avoid; }}
 p, li {{ font-size:11.2px; }}
 p {{ margin:0 0 3.4mm; }}
 ul, ol {{ margin:0 0 4mm 6mm; padding-left:5mm; }}
@@ -450,10 +451,10 @@ p code, li code {{ background:#ece2d4; color:var(--blue); border:1px solid #dcca
 .doc-snippet h4 {{ color:var(--blue); font:800 12px/1.25 "SF Mono","SFNSMono",Menlo,monospace; margin:0 0 2mm; }}
 .doc-snippet p, .doc-snippet li {{ font:10px/1.5 "SF Mono","SFNSMono",Menlo,monospace; }}
 .doc-snippet p:last-child, .doc-snippet ul:last-child {{ margin-bottom:0; }}
-.diagnosis-chain {{ background:#fbf6ee; border:1px solid var(--line); border-left:1.8mm solid var(--blue); padding:3mm 3.5mm; margin:3mm 0 5mm; break-inside:avoid; page-break-inside:avoid; }}
+.diagnosis-chain {{ background:#fbf6ee; border:1px solid var(--line); border-left:1.8mm solid var(--blue); padding:4mm 4.5mm; margin:3.5mm 0 5.5mm; break-inside:avoid; page-break-inside:avoid; }}
 .chain-row {{ display:flex; align-items:stretch; flex-wrap:wrap; gap:1.6mm; margin:1.2mm 0; }}
 .chain-row.branch {{ padding-left:3mm; border-left:1px solid #dacfc1; }}
-.chain-row span {{ display:inline-flex; align-items:center; background:#fffdf8; border:1px solid #e3d6c7; padding:1.4mm 1.8mm; font-size:8.7px; line-height:1.25; max-width:44mm; }}
+.chain-row span {{ display:inline-flex; align-items:center; background:#fffdf8; border:1px solid #e3d6c7; padding:1.6mm 2mm; font-size:9.2px; line-height:1.28; max-width:48mm; }}
 .chain-row span:not(:last-child)::after {{ content:""; width:0; height:0; border-top:3px solid transparent; border-bottom:3px solid transparent; border-left:5px solid var(--blue); margin-left:1.6mm; }}
 .table-wrap {{ margin:4mm 0 5mm; break-inside:avoid; page-break-inside:avoid; overflow:hidden; }}
 table {{ width:100%; border-collapse:collapse; font-size:9.8px; line-height:1.36; }}

@@ -106,6 +106,10 @@ Use this mode whenever the user asks for `麦肯锡 style`, `McKinsey style`, co
 - Use sans-serif typography, strong hierarchy, compact tables, numbered sections, thin dividers, and generous whitespace around headlines.
 - Avoid beige editorial themes, decorative textures, shadows, rounded cards, gradients, stock imagery, and playful styling.
 - Make tables consulting-ready: smaller type, strong header rows, zebra striping only when useful, right-aligned numeric columns where practical, and no row splitting when avoidable.
+- Run a page-by-page display review before delivery. Fix orphaned headings, detached exhibit labels, short continuation fragments, and mostly blank tail pages before calling the PDF final.
+- Keep headings with their first evidence block. A heading such as `6.3 行动效果预期` must never appear alone at the bottom of one page while its table starts on the next page.
+- Keep compact subsections together when possible. If a small `h3` analysis block spills only two or three lines onto a new page, move the whole subsection to the next page or rebalance spacing.
+- Size issue trees and diagnosis-chain exhibits for scanning. They should read as business exhibits, not tiny footnotes or cramped diagrams.
 - Review against `anti-patterns.md` before final delivery. Fix the obvious consulting anti-patterns, especially weak storyline, missing exhibit takeaways, unverifiable executive metrics, and generic actions.
 - Add an evaluation artifact for the produced PDF using `evals.md` before reporting success.
 
@@ -127,6 +131,8 @@ The HTML should include:
 - prose/documentation snippets visually distinct from executable code blocks
 - business diagnosis chains rendered as readable flow components instead of terminal-style code
 - no source-acquisition preambles such as `Documentation Index` / `llms.txt` printed as reader content
+- no orphaned heading/exhibit labels at page bottoms
+- no detached continuation pages containing only a small tail fragment
 - `@page { size: A4; margin: ... }`
 - explicit page breaks for cover and major sections
 - `@media print` rules that remove shadows and browser-only effects
