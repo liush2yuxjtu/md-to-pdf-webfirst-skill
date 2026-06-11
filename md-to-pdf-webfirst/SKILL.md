@@ -87,6 +87,9 @@ Use this mode for ordinary Markdown docs such as tutorials, best-practices guide
 - Use warm paper, restrained grid/rule details, and one or two accents when useful.
 - Preserve authoring structure: Markdown pipe tables must render as real tables, MDX-style callouts must render as designed callout boxes, and thematic breaks must render as rules instead of raw syntax.
 - Prevent page-bottom collisions: do not print fixed footers unless the content area reserves a real bottom safe zone, and do not leave headings or heading-callout pairs orphaned at the bottom of a page.
+- Keep production notes out of reader-facing pages: cover pages must not show pipeline labels such as `DESIGNED HTML FIRST` or `PRINTED TO PDF WITH CHROME`; those belong in metadata or evals, not the PDF body.
+- Parse Markdown inside blockquotes and documentation snippets enough to avoid raw authoring syntax such as `## Heading` leaking into the PDF.
+- Distinguish runnable code from documentation excerpts. Fenced `markdown`, `mdx`, or prose examples should render as light documentation snippets, not black terminal/code blocks.
 - Do not add executive-summary pages, issue maps, or McKinsey-style redline systems unless the user explicitly requests that tone.
 - Review `anti-patterns.md`, especially the warning against applying a consulting skin to non-consulting documents.
 
@@ -117,6 +120,9 @@ The HTML should include:
 - real table markup for Markdown pipe tables
 - no leaked source-only tags such as `<Callout>` or `</Callout>`
 - print CSS that prevents fixed footers from overlapping flowing content
+- no reader-facing build pipeline labels on the cover
+- no raw Markdown heading markers inside blockquotes
+- prose/documentation snippets visually distinct from executable code blocks
 - `@page { size: A4; margin: ... }`
 - explicit page breaks for cover and major sections
 - `@media print` rules that remove shadows and browser-only effects

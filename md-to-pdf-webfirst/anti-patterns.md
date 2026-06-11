@@ -61,6 +61,30 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Do not use `position: fixed` footers in printed PDFs unless the page model reserves a bottom safe zone. Prefer hiding decorative footers in print, or use normal-flow footers. Add `break-after: avoid` to headings and keep heading-callout pairs together so a section does not begin inside the footer area.
 
+### 0.6 Build Pipeline Label Printed On The Cover
+
+**Symptom:** The cover includes internal production copy such as `DESIGNED HTML FIRST` or `PRINTED TO PDF WITH CHROME`.
+
+**Why it matters:** The PDF reader needs the document, not the converter's self-description. Pipeline proof belongs in metadata, evals, or delivery notes.
+
+**Correction:** Keep reader-facing covers clean. Move pipeline labels, Chrome proof, hashes, and generation notes into `<slug>-meta.json`, evals, gallery copy, or the final response.
+
+### 0.7 Raw Markdown Syntax Inside Blockquotes
+
+**Symptom:** A blockquote prints raw authoring syntax such as `## Documentation Index` instead of rendering the heading text.
+
+**Why it matters:** Raw Markdown markers make the document feel mechanically dumped and raise doubts about what else was not parsed.
+
+**Correction:** Group consecutive `>` lines into one blockquote and parse basic nested Markdown inside it: headings, paragraphs, lists, inline code, links, bold, and emphasis. The reader should see `Documentation Index`, not `## Documentation Index`.
+
+### 0.8 Prose Snippet Misclassified As Code
+
+**Symptom:** A documentation excerpt or prompt snippet is rendered as a black executable code block even though it is explanatory prose or Markdown content.
+
+**Why it matters:** Code styling is a semantic claim. Mislabeling prose as code makes pages heavy and confuses what the reader is expected to run.
+
+**Correction:** Treat fenced `markdown`, `mdx`, `text`, and documentation-like snippets as light documentation examples. Reserve dark code blocks for executable commands, program code, terminal output, or genuinely code-like source.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.

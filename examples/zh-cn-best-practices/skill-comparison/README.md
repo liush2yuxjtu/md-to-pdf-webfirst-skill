@@ -11,12 +11,14 @@ Skill locations found in this Git repo:
 - Fix applied: default Markdown docs now use technical-documentation mode, not a consulting redline skin
 - Fix applied: Markdown pipe tables, MDX-style callouts, and thematic breaks now render as PDF components instead of raw source syntax
 - Fix applied: print pagination now hides decorative fixed footers and keeps subsection headings with their first content block
+- Fix applied: v2 removes reader-facing build pipeline labels, parses Markdown inside blockquotes, and renders documentation snippets separately from executable code blocks
 - Old skill/script source: Git commit `33d3321` (`Fix Pages example links`)
 
 ## Outputs
 
 | Run | Skill version | PDF | Pages | First 3 pages text | PDF SHA-256 short |
 | --- | --- | --- | ---: | ---: | --- |
+| New skill v2 | `HEAD` / current `main` | `new-skill-v2/best-practices-new-skill-v2-20260611.pdf` | 19 | 1,261 chars | `b196a30f2f6bf4cc` |
 | New skill | `HEAD` / current `main` | `new-skill/best-practices-new-skill-20260611.pdf` | 20 | 1,323 chars | `3b1d17f64704f515` |
 | Old skill | `33d3321` | `old-skill/best-practices-old-skill-33d3321-20260611.pdf` | 20 | 1,506 chars | `9797dd3208f9c72a` |
 

@@ -73,6 +73,61 @@ def render_table(rows: list[list[str]]) -> str:
     return f"<div class='table-wrap'><table>{head_html}{body_html}</table></div>"
 
 
+def render_markdown_fragment(lines: list[str], wrapper: str = "div", class_name: str = "doc-snippet") -> str:
+    parts: list[str] = []
+    paragraph: list[str] = []
+    list_items: list[str] = []
+
+    def flush_paragraph() -> None:
+        nonlocal paragraph
+        if paragraph:
+            parts.append(f"<p>{inline(' '.join(paragraph))}</p>")
+            paragraph = []
+
+    def flush_list() -> None:
+        nonlocal list_items
+        if list_items:
+            parts.append("<ul>" + "".join(f"<li>{inline(item)}</li>" for item in list_items) + "</ul>")
+            list_items = []
+
+    for raw in lines:
+        stripped = raw.strip()
+        if not stripped:
+            flush_paragraph()
+            flush_list()
+            continue
+        heading = re.match(r"^(#{1,4})\s+(.+)$", stripped)
+        if heading:
+            flush_paragraph()
+            flush_list()
+            tag = "h4" if wrapper == "div" else "p"
+            cls = " class='fragment-title'" if wrapper == "blockquote" else ""
+            parts.append(f"<{tag}{cls}>{inline(heading.group(2))}</{tag}>")
+            continue
+        item = re.match(r"^[-*]\s+(.+)$", stripped)
+        if item:
+            flush_paragraph()
+            list_items.append(item.group(1))
+            continue
+        flush_list()
+        paragraph.append(stripped)
+
+    flush_paragraph()
+    flush_list()
+    attrs = f" class='{class_name}'" if class_name else ""
+    return f"<{wrapper}{attrs}>" + "".join(parts) + f"</{wrapper}>"
+
+
+def is_documentation_fence(info: str, lines: list[str]) -> bool:
+    language = info.split()[0].lower() if info.split() else ""
+    if language in {"markdown", "md", "mdx", "text", "txt"}:
+        return True
+    if language:
+        return False
+    sample = "\n".join(lines[:8])
+    return bool(re.search(r"(^|\n)#{1,4}\s+|@README\.md|@package\.json|@docs/", sample))
+
+
 def normalize(lines: list[str]) -> list[str]:
     result: list[str] = []
     for raw in lines:
@@ -112,18 +167,26 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
     title = "Markdown Document"
     subtitle = "PDF-friendly web edition."
     code_count = 0
+    doc_snippet_count = 0
     h3_count = 0
     in_code = False
+    code_info = ""
     code_lines: list[str] = []
     mode: str | None = None
     step_index = 0
+    title_seen = False
+    subtitle_set = False
     i = 0
 
     def flush_code() -> None:
-        nonlocal code_count, code_lines
+        nonlocal code_count, doc_snippet_count, code_lines
         if code_lines:
-            code_count += 1
-            parts.append(f"<pre><code>{escape(chr(10).join(code_lines).strip())}</code></pre>")
+            if is_documentation_fence(code_info, code_lines):
+                doc_snippet_count += 1
+                parts.append(render_markdown_fragment(code_lines, wrapper="div", class_name="doc-snippet"))
+            else:
+                code_count += 1
+                parts.append(f"<pre><code>{escape(chr(10).join(code_lines).strip())}</code></pre>")
             code_lines = []
 
     while i < len(lines):
@@ -134,8 +197,10 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
             if in_code:
                 flush_code()
                 in_code = False
+                code_info = ""
             else:
                 in_code = True
+                code_info = stripped[3:].strip()
             i += 1
             continue
         if in_code:
@@ -187,6 +252,7 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
             text = heading.group(2)
             if level == 1:
                 title = text
+                title_seen = True
             elif level == 2:
                 h2s.append(text)
                 if parts:
@@ -205,11 +271,15 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
             continue
 
         if stripped.startswith(">"):
-            quote = stripped.lstrip("> ").strip()
-            if quote and not subtitle.startswith("Step-by-step"):
-                subtitle = quote
-            parts.append(f"<blockquote>{inline(quote)}</blockquote>")
-            i += 1
+            quote_lines = []
+            while i < len(lines) and lines[i].strip().startswith(">"):
+                quote_lines.append(re.sub(r"^\s*>\s?", "", lines[i]).strip())
+                i += 1
+            quote_text = " ".join(line for line in quote_lines if line and not re.match(r"^#{1,4}\s+", line))
+            if title_seen and not subtitle_set and not h2s and quote_text:
+                subtitle = quote_text
+                subtitle_set = True
+            parts.append(render_markdown_fragment(quote_lines, wrapper="blockquote", class_name=""))
             continue
 
         if is_table_row(line) and i + 1 < len(lines) and is_table_separator(lines[i + 1]):
@@ -268,6 +338,7 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
         "h2_count": len(h2s),
         "h3_count": h3_count,
         "code_block_count": code_count,
+        "doc_snippet_count": doc_snippet_count,
     }
 
 
@@ -297,7 +368,6 @@ a {{ color:var(--teal); text-decoration:none; }}
 .kicker {{ font:800 10px/1.2 "SF Mono","SFNSMono",Menlo,monospace; color:var(--rust); text-transform:uppercase; letter-spacing:.08em; }}
 h1 {{ font-size:44px; line-height:1.04; letter-spacing:0; margin:46mm 0 7mm; max-width:128mm; word-break:keep-all; overflow-wrap:normal; }}
 .subtitle {{ font-size:15.5px; max-width:132mm; color:#3d332b; margin:0 0 14mm; }}
-.blackbar {{ background:var(--code); color:#fff7e8; padding:5mm 6mm; font:11px/1 "SF Mono","SFNSMono",Menlo,monospace; width:165mm; letter-spacing:.03em; }}
 .facts {{ display:grid; grid-template-columns:30mm 1fr; width:148mm; margin-top:11mm; font:10px/1.35 "SF Mono","SFNSMono",Menlo,monospace; }}
 .facts div {{ border-bottom:1px solid rgba(91,72,53,.28); padding:3mm; }}
 .facts div:nth-child(odd) {{ color:var(--rust); font-weight:700; text-transform:lowercase; }}
@@ -320,6 +390,9 @@ p {{ margin:0 0 3.4mm; }}
 ul, ol {{ margin:0 0 4mm 6mm; padding-left:5mm; }}
 li {{ margin-bottom:1.7mm; }}
 blockquote, .tip, .callout {{ border-left:1.8mm solid var(--rust); background:var(--soft); padding:4mm 5mm; margin:4mm 0; color:#3a2b20; break-inside:avoid; }}
+blockquote p {{ margin:0 0 2mm; }}
+blockquote p:last-child {{ margin-bottom:0; }}
+.fragment-title {{ font-weight:800; color:var(--blue); font-size:13px; margin-bottom:2mm; }}
 .callout p:last-child, .tip p:last-child {{ margin-bottom:0; }}
 .steps {{ display:grid; gap:3mm; margin:4mm 0; }}
 .step {{ border:1px solid var(--line); background:#fffaf1; padding:4mm 5mm 4mm 13mm; position:relative; break-inside:avoid; }}
@@ -327,6 +400,10 @@ blockquote, .tip, .callout {{ border-left:1.8mm solid var(--rust); background:va
 pre {{ background:var(--code); color:#fff7e8; padding:4mm; margin:3mm 0 5mm; white-space:pre-wrap; overflow-wrap:anywhere; break-inside:avoid; }}
 code {{ font-family:"SF Mono","SFNSMono",Menlo,monospace; font-size:9.3px; }}
 p code, li code {{ background:#ece2d4; color:var(--blue); border:1px solid #dccab7; padding:0 1.2mm; border-radius:2mm; }}
+.doc-snippet {{ background:#fbf6ee; border:1px solid var(--line); border-left:1.8mm solid var(--blue); padding:4mm 5mm; margin:3mm 0 5mm; break-inside:avoid; page-break-inside:avoid; }}
+.doc-snippet h4 {{ color:var(--blue); font:800 12px/1.25 "SF Mono","SFNSMono",Menlo,monospace; margin:0 0 2mm; }}
+.doc-snippet p, .doc-snippet li {{ font:10px/1.5 "SF Mono","SFNSMono",Menlo,monospace; }}
+.doc-snippet p:last-child, .doc-snippet ul:last-child {{ margin-bottom:0; }}
 .table-wrap {{ margin:4mm 0 5mm; break-inside:avoid; page-break-inside:avoid; overflow:hidden; }}
 table {{ width:100%; border-collapse:collapse; font-size:9.8px; line-height:1.36; }}
 th, td {{ border:1px solid var(--line); padding:2.8mm 3mm; text-align:left; vertical-align:top; overflow-wrap:anywhere; }}
@@ -342,7 +419,6 @@ hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
   <div class="kicker">Markdown / PDF-friendly web first</div>
   <h1>{inline(meta["title"])}</h1>
   <p class="subtitle">{inline(meta["subtitle"])}</p>
-  <div class="blackbar">DESIGNED HTML FIRST · PRINTED TO PDF WITH CHROME</div>
   <div class="facts">
     <div>source</div><div>{escape(source_label)}</div>
     <div>lines</div><div>{meta["md_lines"]}</div>
