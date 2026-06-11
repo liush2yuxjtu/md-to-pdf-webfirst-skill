@@ -386,10 +386,10 @@
 
   <div class="wrap">
     <div class="metrics" aria-label="Example metrics">
-      <div><b>2</b><span>真实 Markdown/PDF 示例</span></div>
+      <div><b>4</b><span>公开 PDF gallery entries</span></div>
       <div><b>A4</b><span>print-friendly HTML layout</span></div>
-      <div><b>20</b><span>中文 best-practices PDF 页数</span></div>
-      <div><b>CLI</b><span>scripted and repeatable</span></div>
+      <div><b>13</b><span>display anti-pattern guardrails</span></div>
+      <div><b>Biz</b><span>auto-routes business diagnosis HTML</span></div>
     </div>
   </div>
 
@@ -397,13 +397,13 @@
     <div class="split">
       <div>
         <h2>最终流程</h2>
-        <p>直接把 Markdown 转 PDF 往往像纯文本导出。这个 skill 把 HTML 当成 PDF 的设计画布，先解决封面、目录、章节、代码块、分页，再打印。</p>
+        <p>直接把 Markdown 或业务 HTML 转 PDF 往往像纯文本导出。这个 skill 把 HTML 当成 PDF 的设计画布，先解决封面、目录、章节、图表、字号、分页，再打印。</p>
       </div>
       <div class="flow">
-        <div class="flow-item"><strong>01</strong><p>读取本地 `.md` 或远程 Markdown URL，保留源文件与哈希。</p></div>
-        <div class="flow-item"><strong>02</strong><p>生成 PDF-friendly HTML：封面、section map、章节页、代码块、A4 CSS。</p></div>
+        <div class="flow-item"><strong>01</strong><p>读取本地 `.md`、远程 Markdown URL，或业务诊断 HTML，保留源文件与哈希。</p></div>
+        <div class="flow-item"><strong>02</strong><p>按文档类型选择版式：technical docs 走可读文档模式，业务诊断走 publication-report 模式。</p></div>
         <div class="flow-item"><strong>03</strong><p>用 headless Chrome 打印 PDF，并关闭默认页眉页脚。</p></div>
-        <div class="flow-item"><strong>04</strong><p>用 `pypdf` 验证页数和可抽取文本，再生成真实 PDF 首页预览。</p></div>
+        <div class="flow-item"><strong>04</strong><p>用 `pypdf` 验证页数和可抽取文本，再生成真实 PDF 首页预览、contact sheet 和 eval。</p></div>
       </div>
     </div>
   </section>
@@ -413,14 +413,14 @@
     <p>这些不是 mock：Markdown、PDF 和封面图都来自真实转换结果。最新 PDF gallery 见 <a href="changelog.html">CHANGELOG</a>。</p>
     <div class="examples">
       <article class="example">
-        <img src="assets/zh-cn-best-practices-cover.png" alt="Claude Code 最佳实践 PDF 封面">
+        <img src="assets/zh-cn-best-practices-v3-cover.png" alt="Claude Code 最佳实践 v3 PDF 封面">
         <div class="example-body">
-          <h3>Claude Code 最佳实践</h3>
-          <p>中文文档示例。封面标题做了 CJK 安全断行，避免长中文标题撞到右侧色条。</p>
+          <h3>Claude Code 最佳实践 · v3</h3>
+          <p>最新公开回归样张：抑制 `Documentation Index` / `llms.txt` 前导块，避免采集元信息进入读者 PDF。</p>
           <div class="example-links">
-            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/zh-cn-best-practices/best-practices.md">Markdown</a>
-            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/zh-cn-best-practices/best-practices.pdf">PDF</a>
-            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/zh-cn-best-practices/cover.png">Cover</a>
+            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/zh-cn-best-practices/skill-comparison/new-skill-v3/best-practices-new-skill-v3-20260611.md">Markdown</a>
+            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/zh-cn-best-practices/skill-comparison/new-skill-v3/best-practices-new-skill-v3-20260611.pdf">PDF</a>
+            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/zh-cn-best-practices/skill-comparison/new-skill-v3/previews/best-practices-new-skill-v3-20260611-pdf-cover.png">Cover</a>
           </div>
         </div>
       </article>
@@ -434,6 +434,19 @@
             <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/common-workflows/common-workflows.md">Markdown</a>
             <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/common-workflows/common-workflows.pdf">PDF</a>
             <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/common-workflows/cover.png">Cover</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="example">
+        <img src="assets/hero-cover.png" alt="Publication report mode hero preview">
+        <div class="example-body">
+          <h3>Business HTML publication mode</h3>
+          <p>新增业务诊断路由：识别 RD、Hub、IYA、YoY、GIV、品类、诊断、行动和多表格后，生成封面、前言、目录、执行摘要、图表页和参考页。</p>
+          <div class="example-links">
+            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/md-to-pdf-webfirst/publication-report/README.md">Mode docs</a>
+            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/md-to-pdf-webfirst/references/business-html-report-regression.md">Regression</a>
+            <a class="pill" href="changelog.html">Gallery</a>
           </div>
         </div>
       </article>

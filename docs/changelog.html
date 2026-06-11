@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CHANGELOG · md-to-pdf-webfirst</title>
-  <meta name="description" content="PDF gallery changelog for md-to-pdf-webfirst generated from old example Markdown files.">
+  <meta name="description" content="PDF gallery changelog for md-to-pdf-webfirst generated from old example Markdown files and display QA regressions.">
   <style>
     :root {
       --paper: #f7f3ea;
@@ -227,24 +227,43 @@
       <div class="eyebrow">CHANGELOG / PDF gallery</div>
       <h1>Old Markdown, new PDFs.</h1>
     </div>
-    <p>The gallery below was rebuilt from the existing example Markdown files using the updated web-first PDF skill. The newest cards append regression fixes for cover copy, quoted Markdown, documentation snippets, and source-acquisition preambles.</p>
+    <p>The gallery below tracks public PDF examples plus the display QA regressions that now shape the skill: readable type floors, clean reader-facing PDFs, publication-report structure, and source-acquisition preamble suppression.</p>
   </header>
 
   <main class="release">
     <div class="release-head">
       <div>
         <div class="eyebrow">2026-06-11</div>
-        <h2>Frontend-design + McKinsey-style skill update</h2>
+        <h2>Publication report + display QA update</h2>
       </div>
-      <div class="badge">4 PDFs tracked</div>
+      <div class="badge">Latest skill</div>
     </div>
 
     <div class="notes" aria-label="Release metrics">
-      <div><b>4</b><span>PDF versions tracked in this gallery</span></div>
-      <div><b>78</b><span>total PDF pages across gallery</span></div>
-      <div><b>4</b><span>reader-facing regression fixes captured</span></div>
-      <div><b>A4</b><span>Chrome print-to-PDF, no browser header/footer</span></div>
+      <div><b>4</b><span>public PDF versions tracked in this gallery</span></div>
+      <div><b>13</b><span>display anti-patterns captured in the skill</span></div>
+      <div><b>11px</b><span>minimum body/list type floor for readable PDFs</span></div>
+      <div><b>Biz</b><span>business diagnosis HTML now routes to publication mode</span></div>
     </div>
+
+    <article class="card" style="margin-bottom: 22px;">
+      <div class="card-body">
+        <h3>Latest skill guardrails</h3>
+        <p>The most recent work moved private business-report feedback into reusable public skill rules without publishing the private report itself. The reader PDF must not leak pipeline labels, skill-dev notes, metadata prose, fallback caveats, raw Markdown tables, raw callout tags, or documentation-index preambles.</p>
+        <div class="meta">
+          <span>Readable type: body/list >= 11px, normal tables >= 10px, dense tables >= 9.5px</span>
+          <span>Publication mode: cover, foreword, contents, executive summary, infographic, chapter pages, figure pages, body pages, references</span>
+          <span>Eval: contact sheet required; table-dump appearance is a hard fail</span>
+          <span>Imagegen note: Codex App only; caveats stay in metadata/evals/handoff, never reader PDFs</span>
+        </div>
+        <div class="links">
+          <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/md-to-pdf-webfirst/anti-patterns.md">Anti-patterns</a>
+          <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/md-to-pdf-webfirst/evals.md">Evals</a>
+          <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/md-to-pdf-webfirst/publication-report/README.md">Publication mode</a>
+          <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/md-to-pdf-webfirst/references/business-html-report-regression.md">Business regression</a>
+        </div>
+      </div>
+    </article>
 
     <div class="gallery">
       <article class="card">
