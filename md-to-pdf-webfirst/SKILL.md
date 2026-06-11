@@ -99,6 +99,7 @@ Use this mode for ordinary Markdown docs such as tutorials, best-practices guide
 
 Use this mode whenever the user asks for `麦肯锡 style`, `McKinsey style`, consulting style, board-report style, or executive strategy PDF polish. Treat it as McKinsey-inspired consulting presentation craft, not a branded clone:
 
+- If the user asks for MGI-style, research-institute-style, full publication report, editorial hero, generated imagery, figure rebuilds, stable page numbers, footnotes, or references, load `publication-report/README.md` and its referenced files before designing. That module cites local adapters in `supporting-skills/` for image generation, typography, and color. Keep publication-specific rules in subfolders instead of expanding this main skill file.
 - When the user also invokes `frontend-design`, read `frontend-design.md` and apply a real frontend design pass to the PDF HTML. Commit to an aesthetic direction before coding, then verify it in PDF previews.
 - Use a crisp executive-consulting visual system: white paper, black/charcoal text, restrained gray rules, one sharp red accent, and optional deep blue only for secondary emphasis.
 - Put the "so what" first: cover, executive one-page, issue map, and then chaptered evidence.
