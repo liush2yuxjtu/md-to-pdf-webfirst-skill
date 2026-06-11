@@ -386,10 +386,10 @@
 
   <div class="wrap">
     <div class="metrics" aria-label="Example metrics">
-      <div><b>4</b><span>公开 PDF gallery entries</span></div>
+      <div><b>5</b><span>公开 PDF gallery entries</span></div>
       <div><b>A4</b><span>print-friendly HTML layout</span></div>
-      <div><b>13</b><span>display anti-pattern guardrails</span></div>
-      <div><b>Biz</b><span>auto-routes business diagnosis HTML</span></div>
+      <div><b>28</b><span>display + consulting anti-pattern guardrails</span></div>
+      <div><b>Biz</b><span>auto-routes business HTML and L1 Markdown</span></div>
     </div>
   </div>
 
@@ -412,6 +412,19 @@
     <h2>示例文件</h2>
     <p>这些不是 mock：Markdown、PDF 和封面图都来自真实转换结果。最新 PDF gallery 见 <a href="changelog.html">CHANGELOG</a>。</p>
     <div class="examples">
+      <article class="example">
+        <img src="assets/guizhou-yangfan-l1-overview-cover.png" alt="Guizhou Yangfan L1 overview publication PDF cover">
+        <div class="example-body">
+          <h3>Guizhou Yangfan L1 business overview</h3>
+          <p>业务概览 Markdown 自动路由样张：命中 IYA / PS / 品类 / 建议信号后生成 10 页出版级报告、contact sheet 和 14/14 eval。</p>
+          <div class="example-links">
+            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/guizhou-yangfan-l1-overview/guizhou-yangfan-202605-l1-overview-webfirst-20260611-214738.md">Markdown</a>
+            <a class="pill" href="https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill/blob/main/examples/guizhou-yangfan-l1-overview/guizhou-yangfan-202605-l1-overview-webfirst-20260611-214738.pdf">PDF</a>
+            <a class="pill" href="changelog.html">Gallery</a>
+          </div>
+        </div>
+      </article>
+
       <article class="example">
         <img src="assets/zh-cn-best-practices-v3-cover.png" alt="Claude Code 最佳实践 v3 PDF 封面">
         <div class="example-body">
@@ -459,7 +472,7 @@
     <pre>git clone https://github.com/liush2yuxjtu/md-to-pdf-webfirst-skill.git
 cp -R md-to-pdf-webfirst-skill/md-to-pdf-webfirst ~/.codex/skills/md-to-pdf-webfirst
 
-python ~/.codex/skills/md-to-pdf-webfirst/scripts/md_to_pdf_webfirst.py \
+python3 ~/.codex/skills/md-to-pdf-webfirst/scripts/md_to_pdf_webfirst.py \
   --input https://code.claude.com/docs/zh-CN/best-practices.md \
   --slug zh-cn-best-practices-webfirst \
   --out-dir outputs</pre>
