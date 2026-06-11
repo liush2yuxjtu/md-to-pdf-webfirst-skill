@@ -128,6 +128,35 @@ def is_documentation_fence(info: str, lines: list[str]) -> bool:
     return bool(re.search(r"(^|\n)#{1,4}\s+|@README\.md|@package\.json|@docs/", sample))
 
 
+def is_diagnosis_chain(lines: list[str]) -> bool:
+    text = "\n".join(lines)
+    arrow_count = text.count("→") + text.count("->") + text.count("=>")
+    has_tree_branch = bool(re.search(r"├──|└──", text))
+    has_business_terms = bool(re.search(r"诊断|归因|问题|缺口|Hub|品类|门店|RD|IYA|YoY", text))
+    return arrow_count >= 2 and (has_tree_branch or has_business_terms)
+
+
+def render_diagnosis_chain(lines: list[str]) -> str:
+    chain_parts: list[str] = []
+    normalized = re.sub(r"\s+(?=[├└]──)", "\n", "\n".join(lines))
+    for raw in normalized.splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        is_branch = bool(re.match(r"^[├└]──", stripped))
+        stripped = re.sub(r"^[├└]──\s*", "", stripped)
+        cells = [part.strip() for part in re.split(r"\s*→\s*", stripped) if part.strip()]
+        if len(cells) > 1:
+            chain_parts.append(
+                f"<div class='chain-row{' branch' if is_branch else ''}'>"
+                + "".join(f"<span>{inline(cell)}</span>" for cell in cells)
+                + "</div>"
+            )
+        else:
+            chain_parts.append(f"<p>{inline(stripped)}</p>")
+    return "<div class='diagnosis-chain'>" + "".join(chain_parts) + "</div>"
+
+
 def is_documentation_index_preamble(lines: list[str]) -> bool:
     text = " ".join(line.strip() for line in lines).lower()
     return "documentation index" in text and (
@@ -191,7 +220,10 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
     def flush_code() -> None:
         nonlocal code_count, doc_snippet_count, code_lines
         if code_lines:
-            if is_documentation_fence(code_info, code_lines):
+            if is_diagnosis_chain(code_lines):
+                doc_snippet_count += 1
+                parts.append(render_diagnosis_chain(code_lines))
+            elif is_documentation_fence(code_info, code_lines):
                 doc_snippet_count += 1
                 parts.append(render_markdown_fragment(code_lines, wrapper="div", class_name="doc-snippet"))
             else:
@@ -418,6 +450,11 @@ p code, li code {{ background:#ece2d4; color:var(--blue); border:1px solid #dcca
 .doc-snippet h4 {{ color:var(--blue); font:800 12px/1.25 "SF Mono","SFNSMono",Menlo,monospace; margin:0 0 2mm; }}
 .doc-snippet p, .doc-snippet li {{ font:10px/1.5 "SF Mono","SFNSMono",Menlo,monospace; }}
 .doc-snippet p:last-child, .doc-snippet ul:last-child {{ margin-bottom:0; }}
+.diagnosis-chain {{ background:#fbf6ee; border:1px solid var(--line); border-left:1.8mm solid var(--blue); padding:3mm 3.5mm; margin:3mm 0 5mm; break-inside:avoid; page-break-inside:avoid; }}
+.chain-row {{ display:flex; align-items:stretch; flex-wrap:wrap; gap:1.6mm; margin:1.2mm 0; }}
+.chain-row.branch {{ padding-left:3mm; border-left:1px solid #dacfc1; }}
+.chain-row span {{ display:inline-flex; align-items:center; background:#fffdf8; border:1px solid #e3d6c7; padding:1.4mm 1.8mm; font-size:8.7px; line-height:1.25; max-width:44mm; }}
+.chain-row span:not(:last-child)::after {{ content:""; width:0; height:0; border-top:3px solid transparent; border-bottom:3px solid transparent; border-left:5px solid var(--blue); margin-left:1.6mm; }}
 .table-wrap {{ margin:4mm 0 5mm; break-inside:avoid; page-break-inside:avoid; overflow:hidden; }}
 table {{ width:100%; border-collapse:collapse; font-size:9.8px; line-height:1.36; }}
 th, td {{ border:1px solid var(--line); padding:2.8mm 3mm; text-align:left; vertical-align:top; overflow-wrap:anywhere; }}

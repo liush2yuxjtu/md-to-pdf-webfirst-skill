@@ -93,6 +93,14 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** When a `Documentation Index` / `llms.txt` block appears before the real document title, suppress it from reader-facing output. Record the suppression in metadata if useful, but start the PDF body with the actual document.
 
+### 0.10 Business Diagnosis Chain Rendered As Terminal Code
+
+**Symptom:** A root-cause chain, issue tree, or business diagnosis path with arrows such as `门店层 → Hub层 → 品类层 → RD整体` is rendered as a black terminal-style code block.
+
+**Why it matters:** A diagnosis chain is a reasoning exhibit, not executable code. Black code styling makes it look like a command/output artifact and hides the business logic the reader should scan.
+
+**Correction:** Detect narrative chains containing arrows and tree glyphs (`→`, `├──`, `└──`) and render them as a light diagnosis-flow component with visible steps. Reserve dark code blocks for commands, source code, logs, or terminal output.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.
