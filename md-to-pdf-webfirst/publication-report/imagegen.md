@@ -2,6 +2,8 @@
 
 Use generated images when a publication-grade report needs editorial imagery and no approved local assets exist.
 
+This workflow is available only inside Codex App sessions that expose the `imagegen` tool. Do not describe it as available for GPT-5.5 API calls or other runtimes unless that runtime has its own image-generation integration.
+
 ## What To Generate
 
 - Cover hero: abstract or photographic editorial image related to the domain.
@@ -18,6 +20,8 @@ Use generated images when a publication-grade report needs editorial imagery and
 ## Fallback
 
 If image generation fails, create a local raster or SVG asset using abstract geometry, line-art, and data-driven motifs. The fallback must still be an intentional visual asset, not a blank colored rectangle.
+
+Keep generation failures, Codex-only caveats, and fallback notes out of reader-facing PDF pages. Put those details in metadata, evals, or the delivery note.
 
 ## Verification
 

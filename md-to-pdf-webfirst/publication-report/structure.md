@@ -17,6 +17,7 @@ Alternate page jobs instead of printing one long stream:
 - Appendix / references
 
 Do not put five dense table/body pages in a row when the user asks for publication-grade output.
+Do not leave a page mostly blank after a single table or short narrative block. Add evidence: a figure, heatmap, source-data excerpt, quantified callouts, or a clearly labeled implication box.
 
 ## Running System
 
@@ -28,6 +29,8 @@ Every non-cover page should have:
 - section label when useful
 
 Use normal-flow or safely reserved fixed headers/footers. Do not let running elements overlap content.
+
+Reader-facing pages must not contain skill-development notes, pipeline labels, metadata references, tool failure messages, or instructions about Codex/API availability. Keep those details in metadata, evals, or handoff notes.
 
 ## Figure Discipline
 
