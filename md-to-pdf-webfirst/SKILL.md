@@ -105,7 +105,9 @@ Use this mode whenever the user asks for `麦肯锡 style`, `McKinsey style`, co
 - Prefer dense but readable exhibit pages over decorative layouts. Use exhibit labels such as `EXHIBIT 1`, `KEY TAKEAWAY`, `IMPLICATION`, and `ACTION`.
 - Use sans-serif typography, strong hierarchy, compact tables, numbered sections, thin dividers, and generous whitespace around headlines.
 - Avoid beige editorial themes, decorative textures, shadows, rounded cards, gradients, stock imagery, and playful styling.
-- Make tables consulting-ready: smaller type, strong header rows, zebra striping only when useful, right-aligned numeric columns where practical, and no row splitting when avoidable.
+- Make tables consulting-ready: compact but readable type, strong header rows, zebra striping only when useful, right-aligned numeric columns where practical, and no row splitting when avoidable.
+- Do not shrink body or table text below readable print sizes to control page count. Prefer adding pages, splitting wide tables, or repeating context headers over using tiny typography.
+- Minimum readable A4 print sizes: body/list text `>= 11px`, normal tables `>= 10px`, dense/wide tables `>= 9.5px`, notes/callouts `>= 10px`, code/documentation snippets `>= 9.5px`.
 - Run a page-by-page display review before delivery. Fix orphaned headings, detached exhibit labels, short continuation fragments, and mostly blank tail pages before calling the PDF final.
 - Keep headings with their first evidence block. A heading such as `6.3 行动效果预期` must never appear alone at the bottom of one page while its table starts on the next page.
 - Keep compact subsections together when possible. If a small `h3` analysis block spills only two or three lines onto a new page, move the whole subsection to the next page or rebalance spacing.
@@ -126,6 +128,7 @@ The HTML should include:
 - real table markup for Markdown pipe tables
 - no leaked source-only tags such as `<Callout>` or `</Callout>`
 - print CSS that prevents fixed footers from overlapping flowing content
+- print CSS that preserves readable minimum type sizes; never use tiny table text as a pagination hack
 - no reader-facing build pipeline labels on the cover
 - no raw Markdown heading markers inside blockquotes
 - prose/documentation snippets visually distinct from executable code blocks

@@ -125,6 +125,14 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Give diagnosis-flow components enough padding, larger node text, and wrapping room. Split long chains into rows or grouped branches instead of forcing the full tree into one narrow line.
 
+### 0.14 Tiny Typography Used To Control Page Count
+
+**Symptom:** Body text, table cells, or wide-table rows are shrunk until the PDF fits a target page count, for example body text below `11px`, normal tables below `10px`, or wide tables below `9.5px`.
+
+**Why it matters:** A PDF that looks tidy in thumbnails can become unreadable on A4. Consulting polish is not fewer pages; it is fast comprehension at real reading size.
+
+**Correction:** Do not trade readability for page count. Increase the page count, split wide tables, simplify columns, or repeat context headers. As a default floor, use body/list text `>= 11px`, normal tables `>= 10px`, dense/wide tables `>= 9.5px`, notes/callouts `>= 10px`, and code/documentation snippets `>= 9.5px`.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.
