@@ -14,6 +14,8 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
+from business_html_publication import build_business_publication_html, looks_like_business_html
+
 
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -568,9 +570,51 @@ def make_preview(pdf_path: Path, preview_path: Path, work_dir: Path) -> bool:
     return True
 
 
+def make_contact_sheet(pdf_path: Path, preview_dir: Path, slug: str) -> dict:
+    try:
+        import fitz
+        from PIL import Image, ImageDraw
+    except Exception:
+        return {}
+
+    preview_dir.mkdir(parents=True, exist_ok=True)
+    doc = fitz.open(pdf_path)
+    page_paths: list[str] = []
+    thumbs = []
+    for idx, page in enumerate(doc, start=1):
+        pix = page.get_pixmap(matrix=fitz.Matrix(1.15, 1.15), alpha=False)
+        page_path = preview_dir / f"{slug}-page-{idx:02d}.png"
+        pix.save(page_path)
+        page_paths.append(str(page_path.resolve()))
+
+        image = Image.open(page_path).convert("RGB")
+        image.thumbnail((190, 270))
+        thumb = Image.new("RGB", (210, 300), "white")
+        thumb.paste(image, ((210 - image.width) // 2, 10))
+        ImageDraw.Draw(thumb).text((10, 278), f"p.{idx:02d}", fill=(20, 20, 20))
+        thumbs.append(thumb)
+
+    if not thumbs:
+        return {}
+
+    cols = 5
+    rows = (len(thumbs) + cols - 1) // cols
+    sheet = Image.new("RGB", (cols * 210, rows * 300), (246, 244, 239))
+    for idx, thumb in enumerate(thumbs):
+        sheet.paste(thumb, ((idx % cols) * 210, (idx // cols) * 300))
+    contact_sheet = preview_dir / f"{slug}-contact-sheet.png"
+    sheet.save(contact_sheet)
+    return {
+        "page_previews": page_paths,
+        "contact_sheet": str(contact_sheet.resolve()),
+        "contact_sheet_bytes": contact_sheet.stat().st_size,
+        "contact_sheet_sha256_16": sha16(contact_sheet),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", required=True, help="Markdown file path or URL")
+    parser.add_argument("--input", required=True, help="Markdown/HTML file path or URL")
     parser.add_argument("--slug", required=True)
     parser.add_argument("--out-dir", default="outputs")
     args = parser.parse_args()
@@ -581,6 +625,7 @@ def main() -> int:
     work_dir.mkdir(parents=True, exist_ok=True)
 
     md_path = out_dir / f"{args.slug}.md"
+    source_html_path = out_dir / f"{args.slug}-source.html"
     html_path = out_dir / f"{args.slug}.html"
     pdf_path = out_dir / f"{args.slug}.pdf"
     meta_path = out_dir / f"{args.slug}-meta.json"
@@ -588,23 +633,42 @@ def main() -> int:
 
     source = args.input
     if is_url(source):
-        md_path.write_bytes(fetch_url(source))
+        source_bytes = fetch_url(source)
     else:
-        md_path.write_bytes(Path(source).read_bytes())
+        source_bytes = Path(source).read_bytes()
 
-    markdown = md_path.read_text(encoding="utf-8")
-    content_meta = parse_markdown(markdown)[1]
-    meta = {
-        **content_meta,
-        "source": source,
-        "markdown": str(md_path.resolve()),
-        "html": str(html_path.resolve()),
-        "pdf": str(pdf_path.resolve()),
-        "md_lines": len(markdown.splitlines()),
-        "md_bytes": md_path.stat().st_size,
-        "md_sha256_16": sha16(md_path),
-    }
-    html_path.write_text(build_html(markdown, meta, source), encoding="utf-8")
+    source_text = source_bytes.decode("utf-8", errors="ignore")
+
+    if looks_like_business_html(source_text):
+        source_html_path.write_bytes(source_bytes)
+        publication_html, content_meta = build_business_publication_html(source_text, source, args.slug, out_dir)
+        meta = {
+            **content_meta,
+            "source": source,
+            "source_html": str(source_html_path.resolve()),
+            "html": str(html_path.resolve()),
+            "pdf": str(pdf_path.resolve()),
+            "source_lines": len(source_text.splitlines()),
+            "source_bytes": source_html_path.stat().st_size,
+            "source_sha256_16": sha16(source_html_path),
+        }
+        html_path.write_text(publication_html, encoding="utf-8")
+    else:
+        md_path.write_bytes(source_bytes)
+        markdown = md_path.read_text(encoding="utf-8")
+        content_meta = parse_markdown(markdown)[1]
+        meta = {
+            **content_meta,
+            "source": source,
+            "markdown": str(md_path.resolve()),
+            "html": str(html_path.resolve()),
+            "pdf": str(pdf_path.resolve()),
+            "md_lines": len(markdown.splitlines()),
+            "md_bytes": md_path.stat().st_size,
+            "md_sha256_16": sha16(md_path),
+            "mode": "markdown-booklet",
+        }
+        html_path.write_text(build_html(markdown, meta, source), encoding="utf-8")
     meta.update({"html_bytes": html_path.stat().st_size, "html_sha256_16": sha16(html_path)})
 
     chrome = find_chrome()
@@ -614,7 +678,7 @@ def main() -> int:
     text = "".join((page.extract_text() or "") for page in reader.pages[:3])
     meta.update({
         "chrome": chrome,
-        "pipeline": "markdown -> designed print-friendly HTML -> Chrome print-to-PDF",
+        "pipeline": "source -> designed print-friendly HTML -> Chrome print-to-PDF",
         "pdf_pages": len(reader.pages),
         "first3_text_chars": len(text),
         "pdf_bytes": pdf_path.stat().st_size,
@@ -627,6 +691,8 @@ def main() -> int:
             "pdf_cover_preview_bytes": preview_path.stat().st_size,
             "pdf_cover_preview_sha256_16": sha16(preview_path),
         })
+
+    meta.update(make_contact_sheet(pdf_path, out_dir / "previews", args.slug))
 
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(meta, ensure_ascii=False, indent=2))

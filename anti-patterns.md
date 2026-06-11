@@ -21,6 +21,22 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 - Do not let a prior McKinsey-style request pollute the default Markdown-to-PDF script.
 - For technical docs, prioritize CJK-safe title layout, readable code blocks, section map, compact chapter pages, and a documentation aesthetic.
 
+### 0.0.1 Business Diagnosis HTML Treated As Generic Documentation
+
+**Symptom:** A local business diagnosis HTML report with RD, Hub, IYA, YoY, category, action-plan, and many tables is converted into a clean but plain table booklet because the user did not explicitly say `McKinsey` or `publication`.
+
+**Why it matters:** Business diagnosis reports are decision documents. If the converter treats them as generic documentation, the output can pass basic PDF checks while failing the actual reader job: quick executive understanding.
+
+**Correction:** Auto-route these inputs to publication-report mode. Add cover, foreword, research framework, executive summary, infographic, rebuilt figures, chapter rhythm, source notes, and references. Preserve source tables later in the report, but do not lead with table dumps.
+
+### 0.0.2 False-Positive Eval Pass For A Table Dump
+
+**Symptom:** The eval gives a high or perfect score because the PDF has page count, no Chrome headers, readable tables, and source fidelity, while the contact sheet clearly shows a plain source-table report with no editorial hero, figure rhythm, or publication-grade evidence pages.
+
+**Why it matters:** A rubric that can pass a bad-looking output teaches the skill the wrong lesson.
+
+**Correction:** Treat this as a hard fail. The evaluator must inspect a contact sheet or representative page set and cap/zero the relevant dimensions when a business report lacks publication rhythm, rebuilt figures, and visual evidence pages.
+
 ### 0.1 Tail Appendix Forced Onto Its Own Page
 
 **Symptom:** A short final section such as `Related resources`, `Next steps`, or `References` is forced onto a separate mostly empty page because every second-level heading gets an unconditional page break.

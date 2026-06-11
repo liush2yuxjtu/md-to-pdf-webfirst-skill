@@ -21,6 +21,7 @@ Record these facts in the output evaluation file:
 - PDF byte size and short SHA-256 hash
 - Whether Chrome default headers/footers are absent
 - Whether the cover preview was visually inspected
+- Whether a full contact sheet or representative page set was visually inspected, not only the cover
 
 ## Scoring
 
@@ -136,3 +137,15 @@ Fixes made:
 
 Remaining recommendations:
 ```
+
+## Hard Fail Conditions
+
+The evaluation must be `Fail` regardless of numeric subtotal when any of these are true:
+
+- A business diagnosis HTML report is mostly a source-table dump with only light styling.
+- The PDF has no editorial hero, research-framework page, infographic, rebuilt figure/chart page, or chapter rhythm.
+- The eval claims a perfect score while the contact sheet shows dense table pages with little visual hierarchy.
+- The output includes reader-facing pipeline/tooling notes, fallback messages, metadata references, or Codex/API caveats.
+- A page contains only a short narrative/table fragment with excessive blank space and no evidence block.
+
+For business diagnosis HTML inputs, a passing eval must cite at least one full contact sheet or multiple page previews and must name the pages checked.

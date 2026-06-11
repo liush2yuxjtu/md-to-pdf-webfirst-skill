@@ -57,6 +57,8 @@ For local input, copy or read the existing Markdown path and keep the original u
 
 For local HTML reports, keep the original file untouched and extract the report body into a new PDF-friendly HTML shell. Preserve source headings, tables, strong text, and business content. Do not print the original web preview directly unless it already passes the print-quality checks below.
 
+For local business diagnosis HTML reports, automatically use publication-report mode even when the prompt does not explicitly say `McKinsey`, `MGI`, or `publication`. Trigger this when the source contains business-report signals such as `RD`, `Hub`, `IYA`, `YoY`, `GIV`, `品类`, `诊断`, `行动`, multiple tables, and an executive/diagnosis title. A plain prompt like `$md-to-pdf-webfirst file:///...业务诊断报告.html` must produce a reader-ready publication PDF, not a lightly styled source-table dump.
+
 Collect basic source metadata:
 
 - line count
@@ -99,6 +101,7 @@ Use this mode for ordinary Markdown docs such as tutorials, best-practices guide
 
 Use this mode whenever the user asks for `麦肯锡 style`, `McKinsey style`, consulting style, board-report style, or executive strategy PDF polish. Treat it as McKinsey-inspired consulting presentation craft, not a branded clone:
 
+- Also use this mode automatically for business diagnosis HTML inputs with RD/Hub/IYA/YoY/category/action signals, even if the user only asks for basic conversion. Business diagnosis reports are decision documents by default, not generic documentation.
 - If the user asks for MGI-style, research-institute-style, full publication report, editorial hero, generated imagery, figure rebuilds, stable page numbers, footnotes, or references, load `publication-report/README.md` and its referenced files before designing. That module cites local adapters in `supporting-skills/` for image generation, typography, and color. Keep publication-specific rules in subfolders instead of expanding this main skill file.
 - When the user also invokes `frontend-design`, read `frontend-design.md` and apply a real frontend design pass to the PDF HTML. Commit to an aesthetic direction before coding, then verify it in PDF previews.
 - Use a crisp executive-consulting visual system: white paper, black/charcoal text, restrained gray rules, one sharp red accent, and optional deep blue only for secondary emphasis.
@@ -121,6 +124,8 @@ The HTML should include:
 - cover page
 - executive one-page summary when the source is a business report
 - issue map or operating agenda when the source contains diagnostics/actions
+- editorial research-framework page when the source is a business diagnosis HTML report
+- at least one rebuilt figure/chart page before long source tables when the source has enough numeric table data
 - section map / table of contents
 - clear heading hierarchy
 - print-friendly A4 CSS
@@ -137,6 +142,7 @@ The HTML should include:
 - no source-acquisition preambles such as `Documentation Index` / `llms.txt` printed as reader content
 - no orphaned heading/exhibit labels at page bottoms
 - no detached continuation pages containing only a small tail fragment
+- no false-positive eval pass where a table-heavy source dump is scored as consulting/publication-ready without editorial hero, figure rhythm, or full-page visual review
 - `@page { size: A4; margin: ... }`
 - explicit page breaks for cover and major sections
 - `@media print` rules that remove shadows and browser-only effects
@@ -264,6 +270,8 @@ The script creates:
 - `previews/<slug>-pdf-cover.png`
 
 For McKinsey-style requests, prefer a slug suffix such as `mckinsey`, `consulting`, or `final`, and create a companion `<slug>-evals.md` using `evals.md`.
+
+For business diagnosis HTML inputs, the helper automatically switches to a publication report template and writes `<slug>-source.html` beside the output. If this auto-route does not trigger, stop and inspect the source detection before accepting a generic PDF.
 
 After running it, still inspect the preview yourself. If the preview shows browser headers, wrong pagination, or obvious layout problems, fix the HTML/CSS and rerun.
 
