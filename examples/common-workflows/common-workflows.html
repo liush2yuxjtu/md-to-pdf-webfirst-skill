@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Common workflows · PDF-friendly web edition</title>
+<style>
+@page { size: A4; margin: 14mm 16mm 15mm; }
+:root { --paper:#ffffff; --sheet:#ffffff; --ink:#111827; --muted:#5b6472; --red:#d0021b; --blue:#164f90; --line:#d7dce2; --soft:#f4f6f8; --coal:#111827; }
+* { box-sizing:border-box; }
+html { background:var(--paper); }
+body { margin:0; color:var(--ink); background:var(--paper); font-family:Arial, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; line-height:1.46; }
+a { color:var(--blue); text-decoration:none; }
+.page { width:210mm; min-height:297mm; margin:0 auto 18px; padding:17mm 18mm 16mm; background:var(--sheet); border-top:1px solid var(--line); break-after:page; page-break-after:always; }
+.page:last-of-type { break-after:auto; page-break-after:auto; }
+.cover { position:relative; display:grid; align-content:center; overflow:hidden; border-top:0; border-left:5mm solid var(--red); }
+.cover::after { content:""; position:absolute; left:18mm; right:18mm; bottom:20mm; height:1px; background:var(--line); }
+.kicker { font:700 10px/1.2 Arial, sans-serif; color:var(--red); text-transform:uppercase; letter-spacing:.12em; }
+h1 { font-size:48px; line-height:1.02; letter-spacing:0; margin:38mm 0 6mm; max-width:145mm; word-break:keep-all; overflow-wrap:normal; }
+.subtitle { font-size:15px; max-width:142mm; color:var(--muted); margin:0 0 14mm; }
+.blackbar { border-top:2px solid var(--coal); border-bottom:1px solid var(--line); color:var(--coal); padding:4mm 0; font:700 10px/1 Arial, sans-serif; width:165mm; letter-spacing:.08em; }
+.facts { display:grid; grid-template-columns:30mm 1fr; width:150mm; margin-top:10mm; font:10px/1.3 Arial, sans-serif; }
+.facts div { border-bottom:1px solid var(--line); padding:3mm 2mm; }
+.facts div:nth-child(odd) { color:var(--red); font-weight:700; text-transform:uppercase; }
+.toc h2 { font-size:32px; margin:0 0 12mm; }
+.toc ol { list-style:none; padding:0; margin:0; display:grid; gap:0; }
+.toc li { display:grid; grid-template-columns:18mm 1fr; border-bottom:1px solid var(--line); padding:4mm 0; font-size:16px; }
+.toc span { color:var(--red); font:700 12px/1 Arial, sans-serif; }
+.chapter { break-before:page; page-break-before:always; }
+.chapter:first-child { break-before:auto; page-break-before:auto; }
+.chapter-mark { color:var(--red); border-bottom:2px solid var(--red); width:max-content; padding:0 0 1.5mm; font:700 9px/1 Arial, sans-serif; letter-spacing:.1em; margin-bottom:4mm; }
+h2 { font-size:29px; line-height:1.05; margin:0 0 7mm; }
+h3 { color:var(--blue); font-size:18px; margin:8mm 0 3mm; line-height:1.18; }
+h4 { color:var(--red); font:700 12px/1.25 Arial, sans-serif; margin:5mm 0 2mm; }
+p, li { font-size:11.2px; }
+p { margin:0 0 3.4mm; }
+ul, ol { margin:0 0 4mm 6mm; padding-left:5mm; }
+li { margin-bottom:1.7mm; }
+blockquote, .tip { border-left:1.8mm solid var(--red); background:var(--soft); padding:4mm 5mm; margin:4mm 0; color:var(--coal); }
+.steps { display:grid; gap:3mm; margin:4mm 0; }
+.step { border:1px solid var(--line); background:var(--soft); padding:4mm 5mm 4mm 13mm; position:relative; break-inside:avoid; }
+.step span { position:absolute; left:4mm; top:4mm; color:var(--red); font:700 10px/1 Arial, sans-serif; }
+pre { background:var(--coal); color:#f9fafb; padding:4mm; margin:3mm 0 5mm; white-space:pre-wrap; overflow-wrap:anywhere; break-inside:avoid; }
+code { font-family:"SF Mono","SFNSMono",Menlo,monospace; font-size:9.3px; }
+p code, li code { background:var(--soft); color:var(--blue); border:1px solid var(--line); padding:0 1.2mm; border-radius:1mm; }
+.footer-note { position:fixed; bottom:6mm; left:16mm; right:16mm; color:var(--muted); font:8px/1 Arial, sans-serif; border-top:1px solid var(--line); padding-top:2mm; }
+@media print { html, body { background:white; } .page { width:auto; min-height:267mm; margin:0; } .cover, .toc { height:267mm; overflow:hidden; } .footer-note { position:fixed; } }
+</style>
+</head>
+<body>
+<section class="page cover">
+  <div class="kicker">Markdown / PDF-friendly web first</div>
+  <h1>Common workflows</h1>
+  <p class="subtitle">Step-by-step guides for exploring codebases, fixing bugs, refactoring, testing, and other everyday tasks with Claude Code.</p>
+  <div class="blackbar">DESIGNED HTML FIRST · PRINTED TO PDF WITH CHROME</div>
+  <div class="facts">
+    <div>source</div><div>examples/common-workflows/common-workflows.md</div>
+    <div>lines</div><div>528</div>
+    <div>sections</div><div>7</div>
+    <div>code blocks</div><div>48</div>
+  </div>
+</section>
+<section class="page toc">
+  <h2>Section map</h2>
+  <ol><li><span>01</span>Prompt recipes</li>
+<li><span>02</span>Resume previous conversations</li>
+<li><span>03</span>Run parallel sessions with worktrees</li>
+<li><span>04</span>Plan before editing</li>
+<li><span>05</span>Delegate research to subagents</li>
+<li><span>06</span>Pipe Claude into scripts</li>
+<li><span>07</span>Next steps</li></ol>
+</section>
+<main class="page content"><blockquote>## Documentation Index</blockquote>
+<blockquote>Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt</blockquote>
+<blockquote>Use this file to discover all available pages before exploring further.</blockquote>
+<blockquote>Step-by-step guides for exploring codebases, fixing bugs, refactoring, testing, and other everyday tasks with Claude Code.</blockquote>
+<p>This page collects short recipes for everyday development. For higher-level guidance on prompting and context management, see <a>Best practices</a>.</p>
+<p>This page covers:</p>
+<ul><li><a>Prompt recipes</a> for exploring code, fixing bugs, refactoring, testing, PRs, and documentation</li><li><a>Resume previous conversations</a> so a task can span multiple sittings</li><li><a>Run parallel sessions with worktrees</a> so concurrent edits don&#x27;t collide</li><li><a>Plan before editing</a> to review changes before they touch disk</li><li><a>Delegate research to subagents</a> to keep your main context clean</li><li><a>Pipe Claude into scripts</a> for CI and batch processing</li></ul>
+</section>
+<section class='chapter'><div class='chapter-mark'>SECTION 01</div><h2>Prompt recipes</h2>
+<p>These are prompt patterns for everyday tasks like exploring unfamiliar code, debugging, refactoring, writing tests, and creating PRs. Each works in any Claude Code surface; adapt the wording to your project.</p>
+<h3>Understand new codebases</h3>
+<p>For configuring Claude Code in a monorepo or large codebase, see <a>Monorepos and large repos</a>.</p>
+<h4>Get a quick codebase overview</h4>
+<p>Suppose you&#x27;ve just joined a new project and need to understand its structure quickly.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Navigate to the project root directory</h4></article>
+<pre><code>cd /path/to/project</code></pre>
+<article class='step'><span>02</span><h4>Start Claude Code</h4></article>
+<pre><code>claude</code></pre>
+<article class='step'><span>03</span><h4>Ask for a high-level overview</h4></article>
+<pre><code>give me an overview of this codebase</code></pre>
+<article class='step'><span>04</span><h4>Dive deeper into specific components</h4></article>
+<pre><code>explain the main architecture patterns used here</code></pre>
+<pre><code>what are the key data models?</code></pre>
+<pre><code>how is authentication handled?</code></pre>
+</div>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>Start with broad questions, then narrow down to specific areas</li><li>Ask about coding conventions and patterns used in the project</li><li>Request a glossary of project-specific terms</li></ul>
+</aside>
+<h4>Find relevant code</h4>
+<p>Suppose you need to locate code related to a specific feature or functionality.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Ask Claude to find relevant files</h4></article>
+<pre><code>find the files that handle user authentication</code></pre>
+<article class='step'><span>02</span><h4>Get context on how components interact</h4></article>
+<pre><code>how do these authentication files work together?</code></pre>
+<article class='step'><span>03</span><h4>Understand the execution flow</h4></article>
+<pre><code>trace the login process from front-end to database</code></pre>
+</div>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>Be specific about what you&#x27;re looking for</li><li>Use domain language from the project</li><li>Install a <a>code intelligence plugin</a> for your language to give Claude precise &quot;go to definition&quot; and &quot;find references&quot; navigation</li></ul>
+</aside>
+<p>***</p>
+<h3>Fix bugs efficiently</h3>
+<p>Suppose you&#x27;ve encountered an error message and need to find and fix its source.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Share the error with Claude</h4></article>
+<pre><code>I&#x27;m seeing an error when I run npm test</code></pre>
+<article class='step'><span>02</span><h4>Ask for fix recommendations</h4></article>
+<pre><code>suggest a few ways to fix the @ts-ignore in user.ts</code></pre>
+<article class='step'><span>03</span><h4>Apply the fix</h4></article>
+<pre><code>update user.ts to add the null check you suggested</code></pre>
+</div>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>Tell Claude the command to reproduce the issue and get a stack trace</li><li>Mention any steps to reproduce the error</li><li>Let Claude know if the error is intermittent or consistent</li></ul>
+</aside>
+<p>***</p>
+<h3>Refactor code</h3>
+<p>Suppose you need to update old code to use modern patterns and practices.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Identify legacy code for refactoring</h4></article>
+<pre><code>find deprecated API usage in our codebase</code></pre>
+<article class='step'><span>02</span><h4>Get refactoring recommendations</h4></article>
+<pre><code>suggest how to refactor utils.js to use modern JavaScript features</code></pre>
+<article class='step'><span>03</span><h4>Apply the changes safely</h4></article>
+<pre><code>refactor utils.js to use ES2024 features while maintaining the same behavior</code></pre>
+<article class='step'><span>04</span><h4>Verify the refactoring</h4></article>
+<pre><code>run tests for the refactored code</code></pre>
+</div>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>Ask Claude to explain the benefits of the modern approach</li><li>Request that changes maintain backward compatibility when needed</li><li>Do refactoring in small, testable increments</li></ul>
+</aside>
+<p>***</p>
+<h3>Work with tests</h3>
+<p>Suppose you need to add tests for uncovered code.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Identify untested code</h4></article>
+<pre><code>find functions in NotificationsService.swift that are not covered by tests</code></pre>
+<article class='step'><span>02</span><h4>Generate test scaffolding</h4></article>
+<pre><code>add tests for the notification service</code></pre>
+<article class='step'><span>03</span><h4>Add meaningful test cases</h4></article>
+<pre><code>add test cases for edge conditions in the notification service</code></pre>
+<article class='step'><span>04</span><h4>Run and verify tests</h4></article>
+<pre><code>run the new tests and fix any failures</code></pre>
+</div>
+<p>Claude can generate tests that follow your project&#x27;s existing patterns and conventions. When asking for tests, be specific about what behavior you want to verify. Claude examines your existing test files to match the style, frameworks, and assertion patterns already in use.</p>
+<p>For comprehensive coverage, ask Claude to identify edge cases you might have missed. Claude can analyze your code paths and suggest tests for error conditions, boundary values, and unexpected inputs that are easy to overlook.</p>
+<p>***</p>
+<h3>Create pull requests</h3>
+<p>You can create pull requests by asking Claude directly (&quot;create a pr for my changes&quot;), or guide Claude through it step-by-step:</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Summarize your changes</h4></article>
+<pre><code>summarize the changes I&#x27;ve made to the authentication module</code></pre>
+<article class='step'><span>02</span><h4>Generate a pull request</h4></article>
+<pre><code>create a pr</code></pre>
+<article class='step'><span>03</span><h4>Review and refine</h4></article>
+<pre><code>enhance the PR description with more context about the security improvements</code></pre>
+</div>
+<p>When you create a PR using <code>gh pr create</code>, the session is automatically linked to that PR. To return to it later, run <code>claude --from-pr &lt;number&gt;</code> or paste the PR URL into the <a><code>/resume</code> picker</a> search.</p>
+<aside class='tip'>
+<p>Review Claude&#x27;s generated PR before submitting and ask Claude to highlight potential risks or considerations.</p>
+</aside>
+<h3>Handle documentation</h3>
+<p>Suppose you need to add or update documentation for your code.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Identify undocumented code</h4></article>
+<pre><code>find functions without proper JSDoc comments in the auth module</code></pre>
+<article class='step'><span>02</span><h4>Generate documentation</h4></article>
+<pre><code>add JSDoc comments to the undocumented functions in auth.js</code></pre>
+<article class='step'><span>03</span><h4>Review and enhance</h4></article>
+<pre><code>improve the generated documentation with more context and examples</code></pre>
+<article class='step'><span>04</span><h4>Verify documentation</h4></article>
+<pre><code>check if the documentation follows our project standards</code></pre>
+</div>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>Specify the documentation style you want (JSDoc, docstrings, etc.)</li><li>Ask for examples in the documentation</li><li>Request documentation for public APIs, interfaces, and complex logic</li></ul>
+</aside>
+<p>***</p>
+<h3>Work in notes and non-code folders</h3>
+<p>Claude Code works in any directory. Run it inside a notes vault, a documentation folder, or any collection of markdown files to search, edit, and reorganize content the same way you would code.</p>
+<p>The <code>.claude/</code> directory and <code>CLAUDE.md</code> sit alongside other tools&#x27; config directories without conflict. Claude reads files fresh on each tool call, so it sees edits you make in another application the next time it reads that file.</p>
+<p>***</p>
+<h3>Work with images</h3>
+<p>Suppose you need to work with images in your codebase, and you want Claude&#x27;s help analyzing image content.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Add an image to the conversation</h4></article>
+<p>You can use any of these methods:</p>
+<ol><li>Drag and drop an image into the Claude Code window</li><li>Copy an image and paste it into the CLI with ctrl+v (Do not use cmd+v)</li><li>Provide an image path to Claude. E.g., &quot;Analyze this image: /path/to/your/image.png&quot;</li></ol>
+<article class='step'><span>02</span><h4>Ask Claude to analyze the image</h4></article>
+<pre><code>What does this image show?</code></pre>
+<pre><code>Describe the UI elements in this screenshot</code></pre>
+<pre><code>Are there any problematic elements in this diagram?</code></pre>
+<article class='step'><span>03</span><h4>Use images for context</h4></article>
+<pre><code>Here&#x27;s a screenshot of the error. What&#x27;s causing it?</code></pre>
+<pre><code>This is our current database schema. How should we modify it for the new feature?</code></pre>
+<article class='step'><span>04</span><h4>Get code suggestions from visual content</h4></article>
+<pre><code>Generate CSS to match this design mockup</code></pre>
+<pre><code>What HTML structure would recreate this component?</code></pre>
+</div>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>Use images when text descriptions would be unclear or cumbersome</li><li>Include screenshots of errors, UI designs, or diagrams for better context</li><li>You can work with multiple images in a conversation</li><li>Image analysis works with diagrams, screenshots, mockups, and more</li><li>When Claude references images (for example, <code>[Image #1]</code>), <code>Cmd+Click</code> (Mac) or <code>Ctrl+Click</code> (Windows/Linux) the link to open the image in your default viewer</li></ul>
+</aside>
+<p>***</p>
+<h3>Reference files and directories</h3>
+<p>Use @ to quickly include files or directories without waiting for Claude to read them.</p>
+<div class='steps'>
+<article class='step'><span>01</span><h4>Reference a single file</h4></article>
+<pre><code>Explain the logic in @src/utils/auth.js</code></pre>
+<p>This includes the full content of the file in the conversation.</p>
+<article class='step'><span>02</span><h4>Reference a directory</h4></article>
+<pre><code>What&#x27;s the structure of @src/components?</code></pre>
+<p>This provides a directory listing with file information.</p>
+<article class='step'><span>03</span><h4>Reference MCP resources</h4></article>
+<pre><code>Show me the data from @github:repos/owner/repo/issues</code></pre>
+<p>This fetches data from connected MCP servers using the format @server:resource. See <a>MCP resources</a> for details.</p>
+</div>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>File paths can be relative or absolute</li><li>@ file references add <code>CLAUDE.md</code> in the file&#x27;s directory and parent directories to context</li><li>Directory references show file listings, not contents</li><li>You can reference multiple files in a single message (for example, &quot;@file1.js and @file2.js&quot;)</li></ul>
+</aside>
+<p>***</p>
+<h3>Run Claude on a schedule</h3>
+<p>Suppose you want Claude to handle a task automatically on a recurring basis, like reviewing open PRs every morning, auditing dependencies weekly, or checking for CI failures overnight.</p>
+<p>Pick a scheduling option based on where you want the task to run:</p>
+<p>| Option                                                 | Where it runs                     | Best for                                                                                                                                                                                                 | | :----------------------------------------------------- | :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | | <a>Routines</a>                               | Anthropic-managed infrastructure  | Tasks that should run even when your computer is off. Can also trigger on API calls or GitHub events in addition to a schedule. Configure at <a>claude.ai/code/routines</a>. | | <a>Desktop scheduled tasks</a> | Your machine, via the desktop app | Tasks that need direct access to local files, tools, or uncommitted changes.                                                                                                                             | | <a>GitHub Actions</a>                   | Your CI pipeline                  | Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config.                                                                                            | | <a><code>/loop</code></a>                         | The current CLI session           | Quick polling while a session is open. Tasks stop when you start a new conversation; <code>--resume</code> and <code>--continue</code> restore unexpired ones.                                                                 |</p>
+<aside class='tip'>
+<p>When writing prompts for scheduled tasks, be explicit about what success looks like and what to do with results. The task runs autonomously, so it can&#x27;t ask clarifying questions. For example: &quot;Review open PRs labeled <code>needs-review</code>, leave inline comments on any issues, and post a summary in the <code>#eng-reviews</code> Slack channel.&quot;</p>
+</aside>
+<p>***</p>
+<h3>Ask Claude about its capabilities</h3>
+<p>Claude has built-in access to its documentation and can answer questions about its own features and limitations.</p>
+<h4>Example questions</h4>
+<pre><code>can Claude Code create pull requests?</code></pre>
+<pre><code>how does Claude Code handle permissions?</code></pre>
+<pre><code>what skills are available?</code></pre>
+<pre><code>how do I use MCP with Claude Code?</code></pre>
+<pre><code>how do I configure Claude Code for Amazon Bedrock?</code></pre>
+<pre><code>what are the limitations of Claude Code?</code></pre>
+<p>&lt;Note&gt; Claude provides documentation-based answers to these questions. For hands-on demonstrations, run <code>/powerup</code> for interactive lessons with animated demos, or refer to the specific workflow sections above. &lt;/Note&gt;</p>
+<aside class='tip'>
+<p>Tips:</p>
+<ul><li>Claude always has access to the latest Claude Code documentation, regardless of the version you&#x27;re using</li><li>Ask specific questions to get detailed answers</li><li>Claude can explain complex features like MCP integration, enterprise configurations, and advanced workflows</li></ul>
+</aside>
+<p>***</p>
+</section>
+<section class='chapter'><div class='chapter-mark'>SECTION 02</div><h2>Resume previous conversations</h2>
+<p>When a task spans multiple sittings, pick up where you left off instead of re-explaining context. Claude Code saves every conversation locally.</p>
+<pre><code>claude --continue</code></pre>
+<p>This resumes the most recent session in the current directory; if there isn&#x27;t one yet, it prints <code>No conversation found to continue</code> and exits. Use <code>claude --resume</code> to choose from a list, or <code>/resume</code> from inside a running session. See <a>Manage sessions</a> for naming, branching, and the full picker reference.</p>
+</section>
+<section class='chapter'><div class='chapter-mark'>SECTION 03</div><h2>Run parallel sessions with worktrees</h2>
+<p>Work on a feature in one terminal while Claude fixes a bug in another, without the edits colliding. Each worktree is a separate checkout on its own branch.</p>
+<pre><code>claude --worktree feature-auth</code></pre>
+<p>Run the same command with a different name in a second terminal to start an isolated parallel session. See <a>Worktrees</a> for cleanup, <code>.worktreeinclude</code>, and non-git VCS support. To monitor parallel sessions from one screen instead of separate terminals, see <a>background agents</a>.</p>
+</section>
+<section class='chapter'><div class='chapter-mark'>SECTION 04</div><h2>Plan before editing</h2>
+<p>For changes you want to review before they touch disk, switch to plan mode. Claude reads files and proposes a plan but makes no edits until you approve.</p>
+<pre><code>claude --permission-mode plan</code></pre>
+<p>You can also press <code>Shift+Tab</code> mid-session to toggle into plan mode. See <a>Plan mode</a> for the approval flow and editing the plan in your text editor.</p>
+</section>
+<section class='chapter'><div class='chapter-mark'>SECTION 05</div><h2>Delegate research to subagents</h2>
+<p>Exploring a large codebase fills your context with file reads. Delegate the exploration so only the findings come back.</p>
+<pre><code>use a subagent to investigate how our auth system handles token refresh</code></pre>
+<p>The subagent reads files in its own context window and reports a summary. See <a>Subagents</a> for defining custom agents with their own tools and prompts.</p>
+</section>
+<section class='chapter'><div class='chapter-mark'>SECTION 06</div><h2>Pipe Claude into scripts</h2>
+<p>Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdin and stdout work like any Unix tool.</p>
+<pre><code>git log --oneline -20 | claude -p &quot;summarize these recent commits&quot;</code></pre>
+<p>See <a>Non-interactive mode</a> for output formats, permission flags, and fan-out patterns.</p>
+</section>
+<section class='chapter'><div class='chapter-mark'>SECTION 07</div><h2>Next steps</h2>
+<p>&lt;CardGroup cols={2}&gt; &lt;Card title=&quot;Best practices&quot; icon=&quot;lightbulb&quot; href=&quot;/en/best-practices&quot;&gt; Patterns for getting the most out of Claude Code &lt;/Card&gt;</p>
+<p>&lt;Card title=&quot;Manage sessions&quot; icon=&quot;rotate-left&quot; href=&quot;/en/sessions&quot;&gt; Resume, name, and branch conversations &lt;/Card&gt;</p>
+<p>&lt;Card title=&quot;Worktrees&quot; icon=&quot;code-branch&quot; href=&quot;/en/worktrees&quot;&gt; Run isolated parallel sessions &lt;/Card&gt;</p>
+<p>&lt;Card title=&quot;Extend Claude Code&quot; icon=&quot;puzzle-piece&quot; href=&quot;/en/features-overview&quot;&gt; Add skills, hooks, MCP, subagents, and plugins &lt;/Card&gt; &lt;/CardGroup&gt;</p></main>
+<div class="footer-note">PDF-friendly web edition · source converted from markdown</div>
+</body>
+</html>

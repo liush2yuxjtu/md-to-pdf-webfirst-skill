@@ -1,13 +1,13 @@
 ---
 name: md-to-pdf-webfirst
-description: Convert Markdown files or Markdown URLs into polished PDFs by designing a PDF-friendly web page first, then printing that page to PDF. Use this skill whenever the user asks to convert .md or Markdown to PDF, wants a better-looking PDF, asks for frontend-design to improve PDF output, mentions "web first", "PDF-friendly web", "HTML then PDF", or wants proof/reporting around a Markdown-to-PDF workflow.
+description: Convert Markdown files, Markdown URLs, or report HTML into polished PDFs by designing a PDF-friendly web page first, then printing that page to PDF. Use this skill whenever the user asks to convert .md/HTML to PDF, wants a better-looking PDF, asks for frontend-design to improve PDF output, mentions "web first", "PDF-friendly web", "HTML then PDF", asks for consulting/McKinsey-style PDF polish, or wants proof/reporting around a Markdown-to-PDF workflow.
 ---
 
 # Markdown to PDF, Web First
 
 Use this skill to turn Markdown into a designed, readable PDF by following the final workflow:
 
-1. Get the Markdown source.
+1. Get the Markdown or report HTML source.
 2. Build a print-friendly HTML page from the Markdown.
 3. Apply frontend design to the HTML as the PDF layout surface.
 4. Print the HTML to PDF with Chrome.
@@ -20,7 +20,7 @@ This skill exists because direct Markdown-to-PDF conversion often produces plain
 
 Use this skill when the user asks for any of these:
 
-- Convert a `.md` file or Markdown URL to PDF.
+- Convert a `.md` file, Markdown URL, or report HTML file to PDF.
 - Make the PDF look better, more polished, more designed, or more readable.
 - Use `frontend-design` for the PDF itself.
 - Generate a PDF-friendly web page first, then convert to PDF.
@@ -55,6 +55,8 @@ curl -L --fail --silent --show-error "$URL" -o outputs/<slug>.md
 
 For local input, copy or read the existing Markdown path and keep the original untouched.
 
+For local HTML reports, keep the original file untouched and extract the report body into a new PDF-friendly HTML shell. Preserve source headings, tables, strong text, and business content. Do not print the original web preview directly unless it already passes the print-quality checks below.
+
 Collect basic source metadata:
 
 - line count
@@ -76,9 +78,25 @@ Use a strong but print-safe visual direction. Good defaults:
 
 Avoid generic web-app landing pages. This is not a marketing page; it is a printable document.
 
+#### McKinsey-Style Consulting Mode
+
+Use this mode whenever the user asks for `麦肯锡 style`, `McKinsey style`, consulting style, board-report style, or executive strategy PDF polish. Treat it as McKinsey-inspired consulting presentation craft, not a branded clone:
+
+- When the user also invokes `frontend-design`, read `frontend-design.md` and apply a real frontend design pass to the PDF HTML. Commit to an aesthetic direction before coding, then verify it in PDF previews.
+- Use a crisp executive-consulting visual system: white paper, black/charcoal text, restrained gray rules, one sharp red accent, and optional deep blue only for secondary emphasis.
+- Put the "so what" first: cover, executive one-page, issue map, and then chaptered evidence.
+- Prefer dense but readable exhibit pages over decorative layouts. Use exhibit labels such as `EXHIBIT 1`, `KEY TAKEAWAY`, `IMPLICATION`, and `ACTION`.
+- Use sans-serif typography, strong hierarchy, compact tables, numbered sections, thin dividers, and generous whitespace around headlines.
+- Avoid beige editorial themes, decorative textures, shadows, rounded cards, gradients, stock imagery, and playful styling.
+- Make tables consulting-ready: smaller type, strong header rows, zebra striping only when useful, right-aligned numeric columns where practical, and no row splitting when avoidable.
+- Review against `anti-patterns.md` before final delivery. Fix the obvious consulting anti-patterns, especially weak storyline, missing exhibit takeaways, unverifiable executive metrics, and generic actions.
+- Add an evaluation artifact for the produced PDF using `evals.md` before reporting success.
+
 The HTML should include:
 
 - cover page
+- executive one-page summary when the source is a business report
+- issue map or operating agenda when the source contains diagnostics/actions
 - section map / table of contents
 - clear heading hierarchy
 - print-friendly A4 CSS
@@ -158,6 +176,24 @@ Inspect the preview:
 - text is readable
 - code and section styling are visible in later pages when possible
 
+### 6.5 Evaluate The PDF
+
+When the user asks for consulting/McKinsey-style output, add an evaluation file beside the output using the rubric in `evals.md`.
+
+Before scoring, run the mentor checklist in `anti-patterns.md`. If the PDF has a known high-impact anti-pattern, revise instead of only mentioning it as a limitation.
+
+When `frontend-design` is invoked, also score the frontend-design dimension from `frontend-design.md`.
+
+The evaluation must include:
+
+- output PDF path, HTML path, and preview path
+- page count and text extraction result
+- score for each McKinsey-style dimension
+- pass/fail decision
+- concrete fixes made or still recommended
+
+The PDF is not done until obvious McKinsey-style failures are fixed and the rerun passes the rubric.
+
 ### 7. Report With Talk Html
 
 If the user asks for a report, use the `talk-html` skill after the conversion is complete.
@@ -178,7 +214,7 @@ Publish unless the user says local-only.
 This skill includes a reusable helper:
 
 ```bash
-python /Users/liushiyuwin/.codex/skills/md-to-pdf-webfirst/scripts/md_to_pdf_webfirst.py \
+python ~/.codex/skills/md-to-pdf-webfirst/scripts/md_to_pdf_webfirst.py \
   --input <markdown-file-or-url> \
   --slug <slug> \
   --out-dir outputs
@@ -192,6 +228,8 @@ The script creates:
 - `<slug>-meta.json`
 - `previews/<slug>-pdf-cover.png`
 
+For McKinsey-style requests, prefer a slug suffix such as `mckinsey`, `consulting`, or `final`, and create a companion `<slug>-evals.md` using `evals.md`.
+
 After running it, still inspect the preview yourself. If the preview shows browser headers, wrong pagination, or obvious layout problems, fix the HTML/CSS and rerun.
 
 ## Quality Bar
@@ -199,6 +237,7 @@ After running it, still inspect the preview yourself. If the preview shows brows
 The output is successful only when:
 
 - The PDF was created from a designed HTML page, not direct plain Markdown conversion.
+- For McKinsey-style requests, the design passes the `evals.md` rubric.
 - The PDF opens and has a real page count.
 - Text extraction works for at least the first few pages.
 - A real cover preview exists.
