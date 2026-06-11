@@ -38,8 +38,39 @@ def inline(text: str) -> str:
     text = escape(text)
     text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"<a>\1</a>", text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", text)
     text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
     return text
+
+
+def is_table_row(line: str) -> bool:
+    stripped = line.strip()
+    return stripped.startswith("|") and stripped.endswith("|") and stripped.count("|") >= 2
+
+
+def is_table_separator(line: str) -> bool:
+    stripped = line.strip()
+    if not is_table_row(stripped):
+        return False
+    cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells)
+
+
+def split_table_row(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def render_table(rows: list[list[str]]) -> str:
+    if not rows:
+        return ""
+    header = rows[0]
+    body = rows[1:]
+    head_html = "<thead><tr>" + "".join(f"<th>{inline(cell)}</th>" for cell in header) + "</tr></thead>"
+    body_html = "<tbody>" + "".join(
+        "<tr>" + "".join(f"<td>{inline(cell)}</td>" for cell in row) + "</tr>"
+        for row in body
+    ) + "</tbody>"
+    return f"<div class='table-wrap'><table>{head_html}{body_html}</table></div>"
 
 
 def normalize(lines: list[str]) -> list[str]:
@@ -63,6 +94,12 @@ def normalize(lines: list[str]) -> list[str]:
             continue
         if re.match(r"^\s*</Tip>\s*$", line):
             result.append(":::endtip")
+            continue
+        if re.match(r"^\s*<Callout>\s*$", line):
+            result.append(":::callout")
+            continue
+        if re.match(r"^\s*</Callout>\s*$", line):
+            result.append(":::endcallout")
             continue
         result.append(re.sub(r"\s+theme=\{null\}", "", line))
     return result
@@ -129,6 +166,20 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
             mode = None
             i += 1
             continue
+        if stripped == ":::callout":
+            mode = "callout"
+            parts.append("<aside class='callout'>")
+            i += 1
+            continue
+        if stripped == ":::endcallout":
+            parts.append("</aside>")
+            mode = None
+            i += 1
+            continue
+        if re.fullmatch(r"[-*_]{3,}", stripped):
+            parts.append("<hr>")
+            i += 1
+            continue
 
         heading = re.match(r"^(#{1,4})\s+(.+)$", stripped)
         if heading:
@@ -161,6 +212,15 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
             i += 1
             continue
 
+        if is_table_row(line) and i + 1 < len(lines) and is_table_separator(lines[i + 1]):
+            table_rows = [split_table_row(line)]
+            i += 2
+            while i < len(lines) and is_table_row(lines[i]):
+                table_rows.append(split_table_row(lines[i]))
+                i += 1
+            parts.append(render_table(table_rows))
+            continue
+
         if re.match(r"^[-*]\s+", stripped):
             items = []
             while i < len(lines) and re.match(r"^\s*[-*]\s+", lines[i]):
@@ -185,6 +245,8 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
                 not nxt
                 or nxt.startswith("```")
                 or nxt.startswith(":::")
+                or re.fullmatch(r"[-*_]{3,}", nxt)
+                or is_table_row(nxt)
                 or re.match(r"^#{1,4}\s+", nxt)
                 or nxt.startswith(">")
                 or re.match(r"^[-*]\s+", nxt)
@@ -254,13 +316,20 @@ p, li {{ font-size:11.2px; }}
 p {{ margin:0 0 3.4mm; }}
 ul, ol {{ margin:0 0 4mm 6mm; padding-left:5mm; }}
 li {{ margin-bottom:1.7mm; }}
-blockquote, .tip {{ border-left:1.8mm solid var(--rust); background:var(--soft); padding:4mm 5mm; margin:4mm 0; color:#3a2b20; }}
+blockquote, .tip, .callout {{ border-left:1.8mm solid var(--rust); background:var(--soft); padding:4mm 5mm; margin:4mm 0; color:#3a2b20; break-inside:avoid; }}
+.callout p:last-child, .tip p:last-child {{ margin-bottom:0; }}
 .steps {{ display:grid; gap:3mm; margin:4mm 0; }}
 .step {{ border:1px solid var(--line); background:#fffaf1; padding:4mm 5mm 4mm 13mm; position:relative; break-inside:avoid; }}
 .step span {{ position:absolute; left:4mm; top:4mm; color:var(--rust); font:800 10px/1 "SF Mono","SFNSMono",Menlo,monospace; }}
 pre {{ background:var(--code); color:#fff7e8; padding:4mm; margin:3mm 0 5mm; white-space:pre-wrap; overflow-wrap:anywhere; break-inside:avoid; }}
 code {{ font-family:"SF Mono","SFNSMono",Menlo,monospace; font-size:9.3px; }}
 p code, li code {{ background:#ece2d4; color:var(--blue); border:1px solid #dccab7; padding:0 1.2mm; border-radius:2mm; }}
+.table-wrap {{ margin:4mm 0 5mm; break-inside:avoid; page-break-inside:avoid; overflow:hidden; }}
+table {{ width:100%; border-collapse:collapse; font-size:9.8px; line-height:1.36; }}
+th, td {{ border:1px solid var(--line); padding:2.8mm 3mm; text-align:left; vertical-align:top; overflow-wrap:anywhere; }}
+th {{ background:#efe5d8; color:#33271f; font-weight:800; }}
+tbody tr:nth-child(even) td {{ background:#fbf6ee; }}
+hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
 .footer-note {{ position:fixed; bottom:6mm; left:16mm; right:16mm; color:var(--muted); font:8px/1 "SF Mono","SFNSMono",Menlo,monospace; border-top:1px solid var(--line); padding-top:2mm; }}
 @media print {{ html, body {{ background:white; }} .page {{ width:auto; min-height:267mm; margin:0; box-shadow:none; }} .cover, .toc {{ height:267mm; overflow:hidden; }} .footer-note {{ position:fixed; }} }}
 </style>

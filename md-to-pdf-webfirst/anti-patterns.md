@@ -29,6 +29,30 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** For default technical-documentation mode, allow the final chapter/appendix to continue after the previous section when it is short. Keep strong page breaks for major chapters, but do not blindly force a mostly empty tail page.
 
+### 0.2 Markdown Table Flattened Into Paragraph Soup
+
+**Symptom:** A Markdown table appears in the PDF as one long paragraph with pipe characters, repeated dashes, and inline links smashed together.
+
+**Why it matters:** This is one of the fastest ways to make a PDF feel broken. Tables are structural content, not prose; flattening them destroys comparison, scanning, and trust.
+
+**Correction:** Parse Markdown pipe tables into real `<table>` markup before printing. Use compact table typography, visible header rows, cell borders, and `overflow-wrap:anywhere` for long links or examples. If a table is too wide, reduce type modestly and preserve row/column structure rather than flattening it.
+
+### 0.3 MDX Or HTML Callout Tags Leaking Into The PDF
+
+**Symptom:** Source-only tags such as `<Callout>`, `</Callout>`, `<Tip>`, or custom MDX wrappers appear verbatim in the PDF body.
+
+**Why it matters:** Raw authoring tags tell the reader the converter failed. They also create ugly, confusing blocks that look like broken code instead of documentation.
+
+**Correction:** Normalize known MDX/documentation tags into designed print components before Markdown parsing. `<Callout>` should become a real callout box; closing tags must never appear as literal text. Add a preview check that searches extracted PDF text for leaked tag names.
+
+### 0.4 Thematic Breaks Printed As Asterisks
+
+**Symptom:** Markdown separators such as `***`, `---`, or `___` appear as literal characters in the PDF.
+
+**Why it matters:** Literal separator syntax is authoring scaffolding, not reader-facing content. It makes the document feel mechanically dumped.
+
+**Correction:** Convert thematic breaks into horizontal rules with print-safe spacing.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.

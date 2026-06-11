@@ -85,6 +85,7 @@ Use this mode for ordinary Markdown docs such as tutorials, best-practices guide
 - Prefer a documentation booklet aesthetic over a consulting deck aesthetic.
 - Optimize for comprehension: section map, stable chapter hierarchy, readable paragraphs, strong code-block contrast, and CJK-safe cover/title layout.
 - Use warm paper, restrained grid/rule details, and one or two accents when useful.
+- Preserve authoring structure: Markdown pipe tables must render as real tables, MDX-style callouts must render as designed callout boxes, and thematic breaks must render as rules instead of raw syntax.
 - Do not add executive-summary pages, issue maps, or McKinsey-style redline systems unless the user explicitly requests that tone.
 - Review `anti-patterns.md`, especially the warning against applying a consulting skin to non-consulting documents.
 
@@ -112,6 +113,8 @@ The HTML should include:
 - print-friendly A4 CSS
 - code blocks with strong contrast
 - readable lists and callouts
+- real table markup for Markdown pipe tables
+- no leaked source-only tags such as `<Callout>` or `</Callout>`
 - `@page { size: A4; margin: ... }`
 - explicit page breaks for cover and major sections
 - `@media print` rules that remove shadows and browser-only effects
