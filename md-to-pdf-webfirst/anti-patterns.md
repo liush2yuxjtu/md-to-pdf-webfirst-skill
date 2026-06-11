@@ -53,6 +53,14 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Convert thematic breaks into horizontal rules with print-safe spacing.
 
+### 0.5 Fixed Footer Colliding With Page Content
+
+**Symptom:** A repeated footer line or note crosses over a heading, callout, or paragraph near the bottom of a PDF page.
+
+**Why it matters:** Overlap at the page boundary instantly reads as broken print layout. It also hides the document hierarchy when a new subsection title is stranded at the bottom.
+
+**Correction:** Do not use `position: fixed` footers in printed PDFs unless the page model reserves a bottom safe zone. Prefer hiding decorative footers in print, or use normal-flow footers. Add `break-after: avoid` to headings and keep heading-callout pairs together so a section does not begin inside the footer area.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.

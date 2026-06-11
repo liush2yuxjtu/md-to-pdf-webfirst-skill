@@ -31,7 +31,10 @@ h1 { font-size:44px; line-height:1.04; letter-spacing:0; margin:46mm 0 7mm; max-
 .chapter:last-of-type { break-before:auto; page-break-before:auto; }
 .chapter-mark { background:var(--rust); color:#fff7e8; width:max-content; padding:2mm 3mm; font:800 9px/1 "SF Mono","SFNSMono",Menlo,monospace; margin-bottom:4mm; }
 h2 { font-size:29px; line-height:1.05; margin:0 0 7mm; }
+h2, h3, h4 { break-after:avoid; page-break-after:avoid; }
 h3 { color:var(--blue); font-size:18px; margin:8mm 0 3mm; line-height:1.18; }
+h3 + .tip, h3 + .callout, h3 + p, h3 + pre, h3 + .steps { break-before:avoid; page-break-before:avoid; }
+.tip + p, .callout + p { break-before:avoid; page-break-before:avoid; }
 h4 { color:var(--rust); font:800 12px/1.25 "SF Mono","SFNSMono",Menlo,monospace; margin:5mm 0 2mm; }
 p, li { font-size:11.2px; }
 p { margin:0 0 3.4mm; }
@@ -51,8 +54,8 @@ th, td { border:1px solid var(--line); padding:2.8mm 3mm; text-align:left; verti
 th { background:#efe5d8; color:#33271f; font-weight:800; }
 tbody tr:nth-child(even) td { background:#fbf6ee; }
 hr { border:0; border-top:1px solid var(--line); margin:6mm 0; }
-.footer-note { position:fixed; bottom:6mm; left:16mm; right:16mm; color:var(--muted); font:8px/1 "SF Mono","SFNSMono",Menlo,monospace; border-top:1px solid var(--line); padding-top:2mm; }
-@media print { html, body { background:white; } .page { width:auto; min-height:267mm; margin:0; box-shadow:none; } .cover, .toc { height:267mm; overflow:hidden; } .footer-note { position:fixed; } }
+.footer-note { color:var(--muted); font:8px/1 "SF Mono","SFNSMono",Menlo,monospace; border-top:1px solid var(--line); padding-top:2mm; margin-top:10mm; }
+@media print { html, body { background:white; } .page { width:auto; min-height:267mm; margin:0; box-shadow:none; } .cover, .toc { height:267mm; overflow:hidden; } .footer-note { display:none; } }
 </style>
 </head>
 <body>
