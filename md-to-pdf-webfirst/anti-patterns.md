@@ -85,6 +85,14 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Treat fenced `markdown`, `mdx`, `text`, and documentation-like snippets as light documentation examples. Reserve dark code blocks for executable commands, program code, terminal output, or genuinely code-like source.
 
+### 0.9 Documentation Index Preamble Printed As Content
+
+**Symptom:** A source-acquisition preamble such as `Documentation Index`, `llms.txt`, or "discover all available pages" appears at the start of the PDF body.
+
+**Why it matters:** These blocks help the crawler or reader discover source pages; they are not part of the report or guide. Printing them makes the PDF feel like a scraped intermediate artifact.
+
+**Correction:** When a `Documentation Index` / `llms.txt` block appears before the real document title, suppress it from reader-facing output. Record the suppression in metadata if useful, but start the PDF body with the actual document.
+
 ### 1. Styling Before Storyline
 
 **Symptom:** The cover and page system look consulting-like, but the document can still read as a formatted report instead of a persuasive executive argument.

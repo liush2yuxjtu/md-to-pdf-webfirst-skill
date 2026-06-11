@@ -128,6 +128,15 @@ def is_documentation_fence(info: str, lines: list[str]) -> bool:
     return bool(re.search(r"(^|\n)#{1,4}\s+|@README\.md|@package\.json|@docs/", sample))
 
 
+def is_documentation_index_preamble(lines: list[str]) -> bool:
+    text = " ".join(line.strip() for line in lines).lower()
+    return "documentation index" in text and (
+        "llms.txt" in text
+        or "discover all available pages" in text
+        or "complete documentation index" in text
+    )
+
+
 def normalize(lines: list[str]) -> list[str]:
     result: list[str] = []
     for raw in lines:
@@ -176,6 +185,7 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
     step_index = 0
     title_seen = False
     subtitle_set = False
+    suppressed_preamble_count = 0
     i = 0
 
     def flush_code() -> None:
@@ -275,6 +285,9 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
             while i < len(lines) and lines[i].strip().startswith(">"):
                 quote_lines.append(re.sub(r"^\s*>\s?", "", lines[i]).strip())
                 i += 1
+            if not title_seen and is_documentation_index_preamble(quote_lines):
+                suppressed_preamble_count += 1
+                continue
             quote_text = " ".join(line for line in quote_lines if line and not re.match(r"^#{1,4}\s+", line))
             if title_seen and not subtitle_set and not h2s and quote_text:
                 subtitle = quote_text
@@ -339,6 +352,7 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
         "h3_count": h3_count,
         "code_block_count": code_count,
         "doc_snippet_count": doc_snippet_count,
+        "suppressed_preamble_count": suppressed_preamble_count,
     }
 
 

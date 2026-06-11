@@ -90,6 +90,7 @@ Use this mode for ordinary Markdown docs such as tutorials, best-practices guide
 - Keep production notes out of reader-facing pages: cover pages must not show pipeline labels such as `DESIGNED HTML FIRST` or `PRINTED TO PDF WITH CHROME`; those belong in metadata or evals, not the PDF body.
 - Parse Markdown inside blockquotes and documentation snippets enough to avoid raw authoring syntax such as `## Heading` leaking into the PDF.
 - Distinguish runnable code from documentation excerpts. Fenced `markdown`, `mdx`, or prose examples should render as light documentation snippets, not black terminal/code blocks.
+- Suppress source-acquisition preambles such as `Documentation Index`, `llms.txt`, and "discover all available pages" blocks when they appear before the real document title.
 - Do not add executive-summary pages, issue maps, or McKinsey-style redline systems unless the user explicitly requests that tone.
 - Review `anti-patterns.md`, especially the warning against applying a consulting skin to non-consulting documents.
 
@@ -123,6 +124,7 @@ The HTML should include:
 - no reader-facing build pipeline labels on the cover
 - no raw Markdown heading markers inside blockquotes
 - prose/documentation snippets visually distinct from executable code blocks
+- no source-acquisition preambles such as `Documentation Index` / `llms.txt` printed as reader content
 - `@page { size: A4; margin: ... }`
 - explicit page breaks for cover and major sections
 - `@media print` rules that remove shadows and browser-only effects
