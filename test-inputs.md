@@ -1,10 +1,10 @@
 # Test Inputs And Human Review Loop
 
-Use this file to choose Markdown/HTML inputs for regression runs and to collect human review that improves future PDF output. The goal is not to maximize page count or score; the goal is to expose layout, readability, source-fidelity, and publication-quality failures before users see them.
+Use this file as the broader candidate pool for Markdown/HTML regression runs and human review. For mandatory regression after `SKILL.md` changes, use `eval-inputs.md` first. The goal is not to maximize page count or score; the goal is to expose layout, readability, source-fidelity, and publication-quality failures before users see them.
 
 ## Required Review Packet Per Test Input
 
-For every selected input, generate outputs from a clear context:
+For every selected input, generate outputs from a clear context. If `SKILL.md` changed, every input in `eval-inputs.md` is selected automatically and must be run before the change is accepted:
 
 - Use a fresh subagent or non-interactive Codex execution when the regression follows a skill update.
 - Use a clearly named clean workdir such as `/tmp/md-to-pdf-webfirst-regression/<date>-<slug>/`.
@@ -110,17 +110,16 @@ Add synthetic files under `examples/regression-inputs/` when a failure appears m
 
 ## Human Review Cadence
 
-Run this loop before accepting a skill change:
+Run this loop before accepting a supporting-file change. If `SKILL.md` changed, do not sample: run the full mandatory suite in `eval-inputs.md` and show consolidated eval boards.
 
-1. Pick at least one documentation Markdown input.
-2. Pick at least one business Markdown input.
-3. Pick at least one HTML input.
+1. For `SKILL.md` changes, select every input in `eval-inputs.md`; for other changes, pick at least one documentation Markdown input, one business Markdown input, and one HTML input from this file.
 4. Start a fresh subagent or non-interactive Codex run in a clean, clearly named workdir.
 5. Give that run only the updated skill path, the selected raw input path, and the output directory.
 6. Generate PDF, metadata, preview/contact sheet, `<slug>-evals.md`, and `<slug>-evals.html`.
-7. Ask a human reviewer to mark display defects and eval misses.
-8. Convert repeated or severe comments into `anti-patterns.md` and `evals.md`.
-9. Update scripts/templates only after the anti-pattern/eval wording is clear.
-10. Rerun the same input through a fresh subagent or non-interactive Codex run in a new output directory and compare contact sheets.
+7. For `SKILL.md` changes, consolidate all rows into `<suite-slug>-eval-board.md` and `<suite-slug>-eval-board.html`.
+8. Show the eval boards to a human reviewer and ask them to mark display defects and eval misses.
+9. Convert repeated or severe comments into `anti-patterns.md` and `evals.md`.
+10. Update scripts/templates only after the anti-pattern/eval wording is clear.
+11. Rerun the full mandatory suite or affected sampled input through a fresh subagent or non-interactive Codex run in a new output directory and compare contact sheets.
 
 Minimum acceptance: the eval must catch the human's top visible concern. If the human says "this looks bad" and the eval still passes perfectly, the eval is wrong and must be fixed before the template is called done.

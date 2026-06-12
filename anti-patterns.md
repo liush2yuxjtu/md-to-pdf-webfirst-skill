@@ -62,6 +62,30 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Preserve the original file as `<slug>-source.html`, but extract readable content before rendering: keep title, headings, paragraphs, lists, tables, and gallery/card copy; strip `head`, `style`, `script`, `svg`, `nav`, `footer`, and browser/page chrome. Then pass the extracted reader Markdown through the publication-report renderer. The eval must hard-fail if extracted PDF text contains raw HTML/CSS markers.
 
+### 0.0.6 Sample-Only Regression After `SKILL.md` Changes
+
+**Symptom:** `SKILL.md` is updated, then only the user's current input or one convenient sample is regenerated before the change is called done.
+
+**Why it matters:** This rewards local fixes and hides regressions across the actual input surface: long docs, short docs, business Markdown, generic HTML, landing/gallery pages, and dense rubric files.
+
+**Correction:** Treat every `SKILL.md` edit as a mandatory full-suite event. Run all inputs in `eval-inputs.md` via fresh subagent or non-interactive Codex execution, generate full review packets, create Markdown and HTML eval boards, and show those boards for human review. If a human-visible defect is not caught by the eval board, update `anti-patterns.md` and `evals.md` before rerunning the full suite.
+
+### 0.0.7 Boilerplate Cover Subtitle
+
+**Symptom:** The cover subtitle says `PDF-friendly web edition` or other converter-facing boilerplate instead of explaining what the reader gets from the document.
+
+**Why it matters:** A McKinsey-style publication cover should establish the reader promise. Tool boilerplate makes even a visually strong cover feel like a generated template.
+
+**Correction:** Use source metadata or the first substantive paragraph as the subtitle. For Markdown with YAML frontmatter, prefer `description`. If no source subtitle exists, use a neutral reader-facing line such as `Reader-ready publication generated from source material`, not converter jargon.
+
+### 0.0.8 Source-Authored Syntax Mistaken For Leakage
+
+**Symptom:** A PDF generated from `SKILL.md`, `evals.md`, or another rubric document is failed because it includes source-authored examples such as `<style>` or `body {` that are intentionally discussed as anti-patterns.
+
+**Why it matters:** Raw-source leakage is a hard fail when HTML/CSS scaffolding is accidentally printed. But a skill/rubric document may need to quote those strings as examples. Confusing the two creates false failures and hides real display issues.
+
+**Correction:** The eval board should separate `raw_source_leakage_patterns` from `source_authored_raw_patterns`. For HTML inputs, any raw HTML/CSS markers in the PDF are leakage. For Markdown inputs, markers that already exist in the source can be marked as source-authored examples and reviewed for formatting rather than treated as leakage.
+
 ### 0.1 Tail Appendix Forced Onto Its Own Page
 
 **Symptom:** A short final section such as `Related resources`, `Next steps`, or `References` is forced onto a separate mostly empty page because every second-level heading gets an unconditional page break.

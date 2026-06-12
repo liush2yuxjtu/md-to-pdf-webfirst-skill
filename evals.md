@@ -8,7 +8,9 @@ Before scoring, review `anti-patterns.md`. Do not pass a PDF that has an obvious
 
 If `frontend-design` was invoked, also review `frontend-design.md` and add the Frontend Design Pass dimension below.
 
-Hard fail any PDF that exposes raw input syntax or implementation code as reader content, including `<!doctype html>`, `<html>`, `<head>`, `<style>`, `</style>`, CSS variables, selectors such as `body {`, or rules such as `box-sizing`. Existing HTML pages must be semantically extracted before publication rendering; they must not be printed as source.
+Hard fail any PDF that exposes raw input syntax or implementation code as reader content, including `<!doctype html>`, `<html>`, `<head>`, `<style>`, `</style>`, CSS variables, selectors such as `body {`, or rules such as `box-sizing`. Existing HTML pages must be semantically extracted before publication rendering; they must not be printed as source. For Markdown/rubric documents that intentionally discuss these strings, classify them as source-authored examples and still review their formatting, but do not call them raw-source leakage.
+
+Hard fail weak generic covers that expose converter boilerplate such as `PDF-friendly web edition`, `Markdown Document`, or source/debug tables on page 1. A publication cover must use a reader-facing title/subtitle derived from the source or from neutral report language.
 
 ## Required Evidence
 
@@ -25,10 +27,30 @@ Record these facts in the output evaluation file:
 - Whether the cover preview was visually inspected
 - Whether a full contact sheet or representative page set was visually inspected, not only the cover
 - Raw source leakage scan for HTML/CSS/Markdown authoring syntax in extracted PDF text
+- Source-authored raw syntax examples, if any, kept separate from leakage
+- Weak generic cover scan for converter boilerplate
 
 ## Evaluation Artifact Menu
 
 Every publication-report run must produce at least one Markdown evaluation file. HTML evaluation files are optional reviewer/gallery surfaces, but should be produced whenever the user asks for a gallery, changelog, browser-review page, GitHub Pages update, or a non-technical review handoff.
+
+## Skill Regression Eval Boards
+
+Whenever `SKILL.md` changes, the regression requirement is stronger than a single PDF eval. Run every input in `eval-inputs.md` with a fresh subagent or non-interactive Codex execution, then create consolidated eval boards:
+
+`<suite-slug>-eval-board.md`
+
+`<suite-slug>-eval-board.html`
+
+The board must show one row per input with source path, output directory, PDF path, contact sheet path, eval paths, mode, page count, PDF hash, hard-fail scan status, human review status, and follow-up owner/file.
+
+Human review status must be one of:
+
+- `PASS`
+- `FAIL`
+- `PENDING HUMAN REVIEW`
+
+Do not mark a `SKILL.md` update complete until the eval boards are shown to the human reviewer. If the board contains `FAIL`, or if the human marks a defect that the eval missed, update `anti-patterns.md`, this rubric, and any relevant script/template before rerunning the full `eval-inputs.md` suite.
 
 ### Required Markdown Eval
 

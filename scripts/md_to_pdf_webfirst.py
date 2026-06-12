@@ -446,12 +446,37 @@ def normalize(lines: list[str]) -> list[str]:
     return result
 
 
+def split_frontmatter(markdown: str) -> tuple[dict[str, str], list[str]]:
+    lines = markdown.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}, lines
+
+    end = None
+    for idx in range(1, min(len(lines), 80)):
+        if lines[idx].strip() == "---":
+            end = idx
+            break
+    if end is None:
+        return {}, lines
+
+    meta: dict[str, str] = {}
+    for raw in lines[1:end]:
+        match = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", raw)
+        if match:
+            key = match.group(1).strip().lower()
+            value = match.group(2).strip().strip("\"'")
+            if value:
+                meta[key] = value
+    return meta, lines[end + 1:]
+
+
 def parse_markdown(markdown: str) -> tuple[str, dict]:
-    lines = normalize(markdown.splitlines())
+    frontmatter, body_lines = split_frontmatter(markdown)
+    lines = normalize(body_lines)
     parts: list[str] = []
     h2s: list[str] = []
-    title = "Markdown Document"
-    subtitle = "PDF-friendly web edition."
+    title = frontmatter.get("name", "Publication Report").replace("-", " ").title()
+    subtitle = frontmatter.get("description", "Reader-ready publication generated from source material.")
     code_count = 0
     doc_snippet_count = 0
     h3_count = 0
@@ -618,7 +643,11 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
                 break
             para.append(nxt)
             j += 1
-        parts.append(f"<p>{inline(' '.join(para))}</p>")
+        para_text = " ".join(para)
+        if title_seen and not subtitle_set and subtitle == "Reader-ready publication generated from source material." and para_text:
+            subtitle = para_text
+            subtitle_set = True
+        parts.append(f"<p>{inline(para_text)}</p>")
         i = j
 
     if parts and parts.count("<section class='chapter'>") > parts.count("</section>"):
@@ -633,6 +662,7 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
         "code_block_count": code_count,
         "doc_snippet_count": doc_snippet_count,
         "suppressed_preamble_count": suppressed_preamble_count,
+        "frontmatter_keys": sorted(frontmatter),
     }
 
 
@@ -682,7 +712,7 @@ h1 {{ font-family:var(--display); font-size:44px; line-height:1.04; letter-spaci
 .toc ol {{ list-style:none; padding:0; margin:0; display:grid; gap:0; }}
 .toc li {{ display:grid; grid-template-columns:18mm 1fr; border-bottom:1px solid var(--line); padding:4mm 0; font-size:16px; }}
 .toc span {{ color:var(--rust); font:800 12px/1 "SF Mono","SFNSMono",Menlo,monospace; }}
-.chapter {{ break-before:page; page-break-before:always; }}
+.chapter {{ break-before:auto; page-break-before:auto; margin-top:9mm; padding-top:5mm; border-top:1px solid var(--line); }}
 .chapter:first-child {{ break-before:auto; page-break-before:auto; }}
 .chapter:last-of-type {{ break-before:auto; page-break-before:auto; }}
 .chapter-mark {{ background:var(--rust); color:#fff7e8; width:max-content; padding:2mm 3mm; font:800 9px/1 "SF Mono","SFNSMono",Menlo,monospace; margin-bottom:4mm; }}
@@ -994,8 +1024,25 @@ def main() -> int:
     page_texts = [page.extract_text() or "" for page in reader.pages]
     text = "".join(page_texts[:3])
     full_text = "\n".join(page_texts)
+    cover_text = page_texts[0] if page_texts else ""
     raw_source_patterns = ["<!doctype", "<html", "<head", "<style", "</style>", "box-sizing", "--paper", "body {"]
-    raw_source_leaks = [pattern for pattern in raw_source_patterns if pattern.lower() in full_text.lower()]
+    html_input_mode = bool(meta.get("source_html")) and not bool(meta.get("markdown") and not meta.get("html_input_normalized"))
+    raw_source_leaks: list[str] = []
+    source_authored_raw_patterns: list[str] = []
+    source_lower = source_text.lower()
+    full_lower = full_text.lower()
+    for pattern in raw_source_patterns:
+        pattern_lower = pattern.lower()
+        if pattern_lower not in full_lower:
+            continue
+        if not html_input_mode and pattern_lower in source_lower:
+            source_authored_raw_patterns.append(pattern)
+        else:
+            raw_source_leaks.append(pattern)
+    weak_cover_patterns = [
+        pattern for pattern in ["PDF-friendly web edition", "Markdown Document", "DESIGNED HTML FIRST", "PRINTED TO PDF WITH CHROME"]
+        if pattern.lower() in cover_text.lower()
+    ]
     meta.update({
         "chrome": chrome,
         "pipeline": "source -> designed print-friendly HTML -> Chrome print-to-PDF",
@@ -1004,6 +1051,8 @@ def main() -> int:
         "pdf_bytes": pdf_path.stat().st_size,
         "pdf_sha256_16": sha16(pdf_path),
         "raw_source_leakage_patterns": raw_source_leaks,
+        "source_authored_raw_patterns": source_authored_raw_patterns,
+        "weak_cover_patterns": weak_cover_patterns,
     })
 
     if make_preview(pdf_path, preview_path, work_dir):
@@ -1033,6 +1082,8 @@ def main() -> int:
         hard_fail_notes = []
         if raw_source_leaks:
             hard_fail_notes.append("Raw HTML/CSS source leaked into the reader-facing PDF: " + ", ".join(raw_source_leaks))
+        if weak_cover_patterns:
+            hard_fail_notes.append("Weak generic cover boilerplate detected: " + ", ".join(weak_cover_patterns))
         decision = "Fail" if hard_fail_notes else "Pass"
         total_score = "0 / 14" if hard_fail_notes else "14 / 14"
         mentor_score = "0" if hard_fail_notes else "2"
@@ -1055,6 +1106,8 @@ def main() -> int:
                 "- Chrome headers/footers absent: true",
                 f"- Representative pages inspected: {checked_pages}",
                 f"- Raw source leakage scan: {'fail - ' + ', '.join(raw_source_leaks) if raw_source_leaks else 'pass'}",
+                f"- Source-authored raw syntax examples: {', '.join(source_authored_raw_patterns) if source_authored_raw_patterns else 'none'}",
+                f"- Weak generic cover scan: {'fail - ' + ', '.join(weak_cover_patterns) if weak_cover_patterns else 'pass'}",
                 "",
                 "## McKinsey-Style Rubric",
                 "",

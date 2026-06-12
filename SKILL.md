@@ -287,7 +287,7 @@ The helper defaults to publication-report output. For business diagnosis HTML in
 
 After running it, still inspect the preview yourself. If the preview shows browser headers, wrong pagination, or obvious layout problems, fix the HTML/CSS and rerun.
 
-For skill regression work, choose representative Markdown/HTML inputs from `test-inputs.md`. After a skill update, run the updated skill through a fresh subagent or non-interactive Codex execution in a clean, clearly named workdir, with the updated skill path and raw input path passed explicitly. Generate the full review packet, let a human review the output, and feed repeated defects back into `anti-patterns.md`, `evals.md`, or the relevant script/template before accepting the change.
+For skill regression work, follow `eval-inputs.md` first and `test-inputs.md` second. `eval-inputs.md` is the mandatory suite; `test-inputs.md` is the larger candidate pool. Every time `SKILL.md` changes, run **all** inputs in `eval-inputs.md` through a fresh subagent or non-interactive Codex execution in a clean, clearly named workdir, with the updated skill path and raw input path passed explicitly. Generate the full review packet for every input, then produce consolidated eval boards in Markdown and HTML that show source, PDF, contact sheet, eval, mode, page count, hash, hard-fail scan, and human review status. Do not accept or report a `SKILL.md` update as done until the eval boards have been shown for human review. If the human catches a visible defect that the eval missed, update `anti-patterns.md`, `evals.md`, and the relevant script/template, then rerun the full mandatory suite in a fresh output directory.
 
 ## Quality Bar
 
