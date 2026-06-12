@@ -16,6 +16,8 @@ Use this skill to turn Markdown into a designed, readable PDF by following the f
 
 This skill exists because direct Markdown-to-PDF conversion often produces plain text pages. The better route is to make the PDF layout as a web page first, then print that page.
 
+Default output contract: produce a publication report, not a generic booklet. Even technical documentation should use a publication-report structure optimized for documentation: cover, section map, clear chapters, evidence/examples, source trace, preview/contact sheet, and eval when quality matters. Only use a plain/quick booklet when the user explicitly asks for a quick plain export or an internal smoke test.
+
 ## When To Use
 
 Use this skill when the user asks for any of these:
@@ -73,7 +75,7 @@ Collect basic source metadata:
 
 Treat the HTML as the PDF design surface.
 
-Use a strong but print-safe visual direction. Good defaults:
+Use a strong but print-safe publication direction. Good defaults:
 
 - Editorial technical manual
 - Archive/index card
@@ -82,11 +84,12 @@ Use a strong but print-safe visual direction. Good defaults:
 
 Avoid generic web-app landing pages. This is not a marketing page; it is a printable document.
 
-#### Default Technical Documentation Mode
+#### Default Publication Documentation Mode
 
-Use this mode for ordinary Markdown docs such as tutorials, best-practices guides, API notes, workflow references, and code-heavy documentation:
+Use this publication-report mode for ordinary Markdown docs such as tutorials, best-practices guides, API notes, workflow references, and code-heavy documentation:
 
 - Prefer a documentation booklet aesthetic over a consulting deck aesthetic.
+- Still produce a publication report. Do not fall back to a plain generic booklet with only cover, table of contents, and dumped Markdown body.
 - Optimize for comprehension: section map, stable chapter hierarchy, readable paragraphs, strong code-block contrast, and CJK-safe cover/title layout.
 - Use warm paper, restrained grid/rule details, and one or two accents when useful.
 - Preserve authoring structure: Markdown pipe tables must render as real tables, MDX-style callouts must render as designed callout boxes, and thematic breaks must render as rules instead of raw syntax.
@@ -96,7 +99,7 @@ Use this mode for ordinary Markdown docs such as tutorials, best-practices guide
 - Distinguish runnable code from documentation excerpts. Fenced `markdown`, `mdx`, or prose examples should render as light documentation snippets, not black terminal/code blocks.
 - Render business diagnosis chains, issue trees, and root-cause paths as light flow/chain components. Do not print `→`, `├──`, or `└──` narrative chains as black executable code blocks.
 - Suppress source-acquisition preambles such as `Documentation Index`, `llms.txt`, and "discover all available pages" blocks when they appear before the real document title.
-- Do not add executive-summary pages, issue maps, or McKinsey-style redline systems unless the user explicitly requests that tone.
+- Do not add consulting-style executive issue maps, McKinsey-style redline systems, or invented business recommendations unless the user explicitly requests that tone.
 - Review `anti-patterns.md`, especially the warning against applying a consulting skin to non-consulting documents.
 
 #### McKinsey-Style Consulting Mode
@@ -278,7 +281,7 @@ The script creates:
 
 For McKinsey-style requests, prefer a slug suffix such as `mckinsey`, `consulting`, or `final`, and create a companion `<slug>-evals.md` using `evals.md`.
 
-For business diagnosis HTML inputs, the helper automatically switches to a publication report template and writes `<slug>-source.html` beside the output. For business overview Markdown inputs such as `总览.md`, the helper automatically switches to `business-markdown-publication` mode and creates an eval beside the output. If this auto-route does not trigger, stop and inspect the source detection before accepting a generic PDF.
+The helper defaults to publication-report output. For business diagnosis HTML inputs, it switches to a business publication report template and writes `<slug>-source.html` beside the output. For business overview Markdown inputs such as `总览.md`, it switches to `business-markdown-publication` mode and creates an eval beside the output. For non-business Markdown, it still uses publication-report mode with a documentation-optimized structure. If any route returns a generic booklet or hand-authored one-off converter, stop and fix the skill before accepting the PDF.
 
 After running it, still inspect the preview yourself. If the preview shows browser headers, wrong pagination, or obvious layout problems, fix the HTML/CSS and rerun.
 
@@ -287,7 +290,8 @@ After running it, still inspect the preview yourself. If the preview shows brows
 The output is successful only when:
 
 - The PDF was created from a designed HTML page, not direct plain Markdown conversion.
-- For McKinsey-style requests, the design passes the `evals.md` rubric.
+- The design uses publication-report structure unless the user explicitly asked for a quick plain export.
+- For McKinsey-style or business-report requests, the design passes the `evals.md` rubric.
 - The PDF opens and has a real page count.
 - Text extraction works for at least the first few pages.
 - A real cover preview exists.

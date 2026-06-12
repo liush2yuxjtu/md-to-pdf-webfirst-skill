@@ -45,6 +45,14 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Auto-route business overview Markdown to `business-markdown-publication` mode. Generate designed HTML, PDF, metadata, cover preview, contact sheet, and eval. The output should be compact rather than padded to 20 pages, but it must include cover, executive answer, table of contents, research framework, at least one rebuilt figure, source table, action page, and source notes.
 
+### 0.0.4 Generic Booklet Fallback Instead Of Publication Report
+
+**Symptom:** The helper handles an input by producing a generic Markdown booklet: cover, table of contents, and a mostly linear source dump, with `mode: markdown-booklet` or equivalent behavior.
+
+**Why it matters:** The skill promise is web-first publication output. A booklet fallback can pass technical PDF checks while failing the expected artifact level: editorial structure, page rhythm, source trace, visual evidence, contact sheet, and eval.
+
+**Correction:** Default every normal conversion to publication-report output. Technical documents can use a documentation-publication style, while business reports use consulting/publication style. Only allow a plain booklet when the user explicitly asks for a quick plain export or smoke test.
+
 ### 0.1 Tail Appendix Forced Onto Its Own Page
 
 **Symptom:** A short final section such as `Related resources`, `Next steps`, or `References` is forced onto a separate mostly empty page because every second-level heading gets an unconditional page break.

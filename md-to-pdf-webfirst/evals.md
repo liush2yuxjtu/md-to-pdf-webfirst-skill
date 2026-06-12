@@ -144,6 +144,7 @@ The evaluation must be `Fail` regardless of numeric subtotal when any of these a
 
 - A business diagnosis HTML report is mostly a source-table dump with only light styling.
 - A business overview Markdown report with IYA/PS/category/action signals is converted as a generic Markdown booklet instead of `business-markdown-publication`.
+- Any normal conversion falls back to a generic booklet mode instead of publication-report output, unless the user explicitly asked for a quick plain export or smoke test.
 - The PDF has no editorial hero, research-framework page, infographic, rebuilt figure/chart page, or chapter rhythm.
 - The eval claims a perfect score while the contact sheet shows dense table pages with little visual hierarchy.
 - The output includes reader-facing pipeline/tooling notes, fallback messages, metadata references, or Codex/API caveats.

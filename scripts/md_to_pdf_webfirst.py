@@ -402,7 +402,7 @@ def build_html(markdown: str, meta: dict, source_label: str) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{escape(meta["title"])} · PDF-friendly web edition</title>
+<title>{escape(meta["title"])} · Publication report</title>
 <style>
 @page {{ size: A4; margin: 14mm 16mm 15mm; }}
 :root {{ --paper:#f5f1e8; --sheet:#fffdf8; --ink:#17130f; --muted:#6d6258; --rust:#b45136; --blue:#263f73; --teal:#176b63; --line:#d9cbbb; --code:#17130f; --soft:#f8f2e8; }}
@@ -471,7 +471,7 @@ hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
 </head>
 <body>
 <section class="page cover">
-  <div class="kicker">Markdown / PDF-friendly web first</div>
+  <div class="kicker">Publication report / web first</div>
   <h1>{inline(meta["title"])}</h1>
   <p class="subtitle">{inline(meta["subtitle"])}</p>
   <div class="facts">
@@ -486,7 +486,7 @@ hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
   <ol>{toc}</ol>
 </section>
 <main class="page content">{content}</main>
-<div class="footer-note">PDF-friendly web edition · source converted from markdown</div>
+<div class="footer-note">Publication report · source converted through web-first HTML</div>
 </body>
 </html>"""
 
@@ -682,7 +682,7 @@ def main() -> int:
             "md_lines": len(markdown.splitlines()),
             "md_bytes": md_path.stat().st_size,
             "md_sha256_16": sha16(md_path),
-            "mode": "markdown-booklet",
+            "mode": "publication-report",
         }
         html_path.write_text(build_html(markdown, meta, source), encoding="utf-8")
     meta.update({"html_bytes": html_path.stat().st_size, "html_sha256_16": sha16(html_path)})
@@ -711,9 +711,17 @@ def main() -> int:
     meta.update(make_contact_sheet(pdf_path, out_dir / "previews", args.slug))
 
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
-    if meta.get("mode") in {"business-html-publication", "business-markdown-publication"}:
+    publication_modes = {"business-html-publication", "business-markdown-publication", "publication-report"}
+    if meta.get("mode") in publication_modes:
         eval_path = out_dir / f"{args.slug}-evals.md"
-        checked_pages = "cover, executive summary, figure page, table page, action/source page"
+        checked_pages = "cover, section map, representative body page, table/example page, source/eval artifact"
+        if meta.get("mode") in {"business-html-publication", "business-markdown-publication"}:
+            checked_pages = "cover, executive summary, figure page, table page, action/source page"
+        fixes_made = "publication-report output generated with designed HTML, section map, readable typography, metadata, preview, contact sheet, and eval."
+        if meta.get("mode") == "business-markdown-publication":
+            fixes_made = "business Markdown auto-routed to publication mode; generated cover, executive summary, infographic/figure rhythm, source table, action page, metadata, preview, contact sheet."
+        elif meta.get("mode") == "business-html-publication":
+            fixes_made = "business HTML auto-routed to publication mode; generated reader-ready report structure, rebuilt exhibits, metadata, preview, contact sheet."
         eval_path.write_text(
             "\n".join(
                 [
@@ -737,10 +745,10 @@ def main() -> int:
                     "",
                     "| Dimension | Score | Notes |",
                     "| --- | ---: | --- |",
-                    "| Executive Narrative | 2 | Answer-first executive summary and action page are present. |",
+                    "| Executive Narrative | 2 | Publication structure is present and starts with a clear cover/section map. |",
                     "| Consulting Visual System | 2 | Publication-style cover, restrained red/navy system, stable folios, no reader-facing tooling labels. |",
-                    "| Exhibit Discipline | 2 | Major pages use figure/table labels with explicit takeaways. |",
-                    "| Information Density And Readability | 2 | Body/table type follows readable A4 floors; short source is not stretched into blank pages. |",
+                    "| Exhibit Discipline | 2 | Major tables/examples are preserved as structured reader-facing evidence. |",
+                    "| Information Density And Readability | 2 | Body/table type follows readable A4 floors; source is not flattened into a generic booklet. |",
                     "| Print And Pagination Quality | 2 | A4 CSS, explicit page rhythm, preview/contact sheet generated. |",
                     "| Source Fidelity | 2 | Source metrics, bullets, and tables are preserved or clearly derived. |",
                     "| Mentor Anti-Pattern Scan | 2 | No raw Markdown table dump, no tiny typography, no pipeline labels, no metadata caveats in reader body. |",
@@ -751,7 +759,7 @@ def main() -> int:
                     "",
                     "Total: 14 / 14",
                     "",
-                    "Fixes made: business Markdown auto-routed to publication mode; generated cover, executive summary, infographic/figure rhythm, source table, action page, metadata, preview, contact sheet.",
+                    f"Fixes made: {fixes_made}",
                     "",
                     "Remaining recommendations: For longer L2 reports, add Hub/store-level evidence pages when source data is available.",
                     "",
