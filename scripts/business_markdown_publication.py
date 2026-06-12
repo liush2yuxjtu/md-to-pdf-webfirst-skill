@@ -30,6 +30,12 @@ def _pct(value: str, default: float = 0.0) -> float:
 def looks_like_business_markdown(source: str) -> bool:
     if source.lstrip().lower().startswith(("<!doctype html", "<html")):
         return False
+    first_heading = re.search(r"^#{1,3}\s+(.+)$", source, flags=re.M)
+    first_heading_text = first_heading.group(1) if first_heading else ""
+    if re.search(r"(规则|模板|prompt|提示词|判断规则)", first_heading_text, flags=re.I):
+        return False
+    if "benchmark_code" in source or re.search(r"\{[^{}\n]*(rd_name|category|month|iya|giv)[^{}\n]*\}", source, flags=re.I):
+        return False
     terms = ["IYA", "PS", "品类", "门店", "同比", "环比", "建议", "总体判断", "生意表现"]
     has_table = "|" in source and re.search(r"\|\s*品类\s*\|", source)
     has_title = bool(re.search(r"^#{1,3}\s+.*(生意|业务|诊断|概览|表现)", source, flags=re.M))

@@ -33,6 +33,47 @@ def is_url(value: str) -> bool:
     return value.startswith("http://") or value.startswith("https://")
 
 
+def normalize_cached_markdown_text(text: str) -> tuple[str, bool]:
+    if text.lstrip().lower().startswith(("<!doctype html", "<html")):
+        return text, False
+
+    original = text
+    has_markdown_markers = any(marker in text for marker in ("```", "###", "## ", "|------", "[Final Reply]", "[Tool Result]"))
+    is_single_line_cache = len(text.splitlines()) <= 2 and "   " in text and has_markdown_markers
+    if is_single_line_cache:
+        text = re.sub(r" {3,}", "\n", text).strip()
+
+    if "[State]" in text or "[Final Reply]" in text or " | |" in text:
+        text = re.sub(r"\s+\[Tool Result\]\s+", "\n\n[Tool Result] ", text)
+        text = re.sub(r"\n\[State\][^\n]*", "", text)
+        text = text.replace("\n[Final Reply]\n\n", "\n\n")
+        text = re.sub(r"\s+\[Final Reply\]\s+", "\n\n", text)
+        text = re.sub(r"\s+---\s+", "\n\n---\n\n", text)
+        text = re.sub(r"\s+###\s+", "\n\n### ", text)
+        text = re.sub(r"\s+##\s+", "\n\n## ", text)
+        text = re.sub(r"\s+#\s+Benchmark", "\n\n# Benchmark", text)
+        text = re.sub(r"```\s+", "```\n", text)
+        text = re.sub(r"\s+```\s+", "\n```\n", text)
+        text = re.sub(r"\s+\*\*([^*]+)\*\*：", r"\n\n**\1**：", text)
+        text = re.sub(r"(\|)\s+\|", r"\1\n|", text)
+        text = re.sub(r"(\|)\s+(\*\*[^*\n]+?\*\*：)", r"\1\n\n\2", text)
+        text = re.sub(r"(\|)\s+(Top 5 产品：)", r"\1\n\n**\2**", text)
+        text = re.sub(r"(\|)\s+(洞察：|解读：)", r"\1\n\n**\2**", text)
+        text = re.sub(r"(### [^\n|]+?)\s+(\| [^\n]+\|)", r"\1\n\2", text)
+        text = re.sub(r"(\*\*Top 5 产品\*\*：)\s+(\| [^\n]+\|)", r"\1\n\2", text)
+        text = re.sub(r"：\s*-\n\n\*\*", "：\n- **", text)
+        text = re.sub(r"。\s*-\n\n\*\*", "。\n- **", text)
+        text = re.sub(r"\n(\d+)\.\n\n(\*\*)", r"\n\1. \2", text)
+        text = re.sub(r"([^\n])\s+```", r"\1\n```", text)
+        text = re.sub(r"^\[Tool Result\][^\n]*\n?", "", text, flags=re.M)
+        text = re.sub(r"\s*\[State\][^\n]*", "", text)
+        text = re.sub(r"\s*\[Final Reply\]\s*", "\n\n", text)
+        text = re.sub(r"\n{3,}", "\n\n", text)
+
+    text = text.strip() + "\n"
+    return text, text != original
+
+
 def escape(text: str) -> str:
     return html.escape(text, quote=True)
 
@@ -456,6 +497,7 @@ def build_html(markdown: str, meta: dict, source_label: str) -> str:
         f"<li><span>{idx:02d}</span>{inline(name)}</li>"
         for idx, name in enumerate(meta["h2s"], 1)
     )
+    first_topic = inline(meta["h2s"][0]) if meta["h2s"] else "Core guidance"
     content, _ = parse_markdown(markdown)
     return f"""<!doctype html>
 <html lang="en">
@@ -464,22 +506,34 @@ def build_html(markdown: str, meta: dict, source_label: str) -> str:
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{escape(meta["title"])} · Publication report</title>
 <style>
-@page {{ size: A4; margin: 14mm 16mm 15mm; }}
-:root {{ --paper:#f5f1e8; --sheet:#fffdf8; --ink:#17130f; --muted:#6d6258; --rust:#b45136; --blue:#263f73; --teal:#176b63; --line:#d9cbbb; --code:#17130f; --soft:#f8f2e8; }}
+@page {{ size: A4; margin: 0; }}
+:root {{ --paper:#dfe4ea; --sheet:#ffffff; --ink:#111827; --muted:#5b6472; --rust:#b91c2b; --blue:#071d3a; --teal:#08766d; --line:#d7dee8; --code:#111827; --soft:#f2f5f8; --display:"Songti SC","STSong","Noto Serif CJK SC",serif; --body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif; --brand:"Avenir Next Condensed","Avenir Next","Helvetica Neue",Arial,sans-serif; }}
 * {{ box-sizing:border-box; }}
 html {{ background:var(--paper); }}
-body {{ margin:0; color:var(--ink); background:var(--paper); font-family:"Iowan Old Style", "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif; line-height:1.52; }}
+body {{ margin:0; color:var(--ink); background:var(--paper); font-family:var(--body); line-height:1.52; }}
 a {{ color:var(--teal); text-decoration:none; }}
-.page {{ width:210mm; min-height:297mm; margin:0 auto 18px; padding:18mm 18mm 16mm; background:var(--sheet); box-shadow:0 12px 38px rgba(45,33,20,.14); break-after:page; page-break-after:always; }}
+.page {{ width:210mm; min-height:297mm; margin:0 auto 18px; padding:18mm 18mm 22mm; background:var(--sheet); box-shadow:0 12px 38px rgba(15,23,42,.16); break-after:page; page-break-after:always; overflow:hidden; }}
 .page:last-of-type {{ break-after:auto; page-break-after:auto; }}
-.cover {{ position:relative; display:grid; align-content:center; overflow:hidden; background:linear-gradient(90deg, rgba(180,81,54,.11) 1px, transparent 1px) 0 0/10mm 10mm, linear-gradient(0deg, rgba(38,63,115,.08) 1px, transparent 1px) 0 0/10mm 10mm, var(--sheet); }}
-.cover::after {{ content:""; position:absolute; inset:0 20mm 0 auto; width:8mm; background:var(--rust); box-shadow:10mm 0 0 var(--blue); }}
-.kicker {{ font:800 10px/1.2 "SF Mono","SFNSMono",Menlo,monospace; color:var(--rust); text-transform:uppercase; letter-spacing:.08em; }}
-h1 {{ font-size:44px; line-height:1.04; letter-spacing:0; margin:46mm 0 7mm; max-width:128mm; word-break:keep-all; overflow-wrap:normal; }}
+.cover {{ position:relative; padding:0; background:#071326; color:white; }}
+.cover-visual {{ position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,13,28,.98),rgba(5,13,28,.74) 47%,rgba(5,13,28,.10)); }}
+.cover-visual::before {{ content:""; position:absolute; top:0; bottom:0; left:54mm; width:36mm; background:var(--rust); opacity:.94; transform:skewX(-12deg); transform-origin:top; }}
+.cover-visual::after {{ content:""; position:absolute; right:-20mm; bottom:-8mm; width:150mm; height:118mm; background:var(--teal); opacity:.72; clip-path:polygon(14% 52%, 40% 28%, 64% 36%, 86% 14%, 100% 22%, 100% 100%, 0 100%, 0 72%); }}
+.cover-line {{ position:absolute; right:0; bottom:62mm; width:116mm; height:44mm; border-top:2mm solid rgba(7,29,58,.68); border-left:1mm solid rgba(7,29,58,.38); transform:skewY(-12deg); }}
+.cover-dot {{ position:absolute; border-radius:50%; background:var(--rust); opacity:.86; }}
+.cover-dot.one {{ right:58mm; bottom:94mm; width:10mm; height:10mm; }}
+.cover-dot.two {{ right:29mm; bottom:116mm; width:7mm; height:7mm; }}
+.brand {{ position:absolute; top:18mm; left:18mm; font:800 10px/1 var(--brand); letter-spacing:.08em; text-transform:uppercase; }}
+.cover-copy {{ position:absolute; left:18mm; top:63mm; width:148mm; }}
+.eyebrow,.fig-label {{ margin:0 0 7mm; color:var(--rust); font:900 10px/1 var(--brand); letter-spacing:.09em; text-transform:uppercase; }}
+.cover .eyebrow {{ color:#f28c8c; }}
+.cover h1 {{ color:#fff; font-family:var(--display); font-size:40px; line-height:1.1; letter-spacing:0; margin:0 0 9mm; max-width:142mm; word-break:keep-all; overflow-wrap:normal; text-shadow:0 2px 12px rgba(0,0,0,.36); }}
+.cover .lead {{ color:#e6edf7; font-size:16px; line-height:1.55; max-width:136mm; margin:0; }}
+.cover-proof {{ display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; margin-top:18mm; max-width:128mm; }}
+.cover-proof div {{ border-top:3px solid rgba(255,255,255,.7); padding-top:3mm; color:#dbe6f5; font-size:10.5px; line-height:1.45; }}
+.cover-proof b {{ display:block; color:#fff; font:900 22px/1 var(--brand); margin-bottom:2mm; }}
+.folio {{ position:absolute; left:18mm; right:18mm; bottom:9mm; display:grid; grid-template-columns:1fr auto 18mm; gap:8mm; border-top:1px solid rgba(255,255,255,.25); padding-top:3mm; color:#cbd5e1; font:700 8.5px/1 var(--brand); letter-spacing:.05em; text-transform:uppercase; }}
+h1 {{ font-family:var(--display); font-size:44px; line-height:1.04; letter-spacing:0; margin:46mm 0 7mm; max-width:128mm; word-break:keep-all; overflow-wrap:normal; }}
 .subtitle {{ font-size:15.5px; max-width:132mm; color:#3d332b; margin:0 0 14mm; }}
-.facts {{ display:grid; grid-template-columns:30mm 1fr; width:148mm; margin-top:11mm; font:10px/1.35 "SF Mono","SFNSMono",Menlo,monospace; }}
-.facts div {{ border-bottom:1px solid rgba(91,72,53,.28); padding:3mm; }}
-.facts div:nth-child(odd) {{ color:var(--rust); font-weight:700; text-transform:lowercase; }}
 .toc h2 {{ font-size:32px; margin:0 0 12mm; }}
 .toc ol {{ list-style:none; padding:0; margin:0; display:grid; gap:0; }}
 .toc li {{ display:grid; grid-template-columns:18mm 1fr; border-bottom:1px solid var(--line); padding:4mm 0; font-size:16px; }}
@@ -526,20 +580,27 @@ th {{ background:#efe5d8; color:#33271f; font-weight:800; }}
 tbody tr:nth-child(even) td {{ background:#fbf6ee; }}
 hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
 .footer-note {{ color:var(--muted); font:8px/1 "SF Mono","SFNSMono",Menlo,monospace; border-top:1px solid var(--line); padding-top:2mm; margin-top:10mm; }}
-@media print {{ html, body {{ background:white; }} .page {{ width:auto; min-height:267mm; margin:0; box-shadow:none; }} .cover, .toc {{ height:267mm; overflow:hidden; }} .footer-note {{ display:none; }} }}
+@media print {{ html, body {{ background:white; }} .page {{ width:auto; min-height:297mm; margin:0; box-shadow:none; }} .cover, .toc {{ height:297mm; overflow:hidden; }} .footer-note {{ display:none; }} }}
 </style>
 </head>
 <body>
 <section class="page cover">
-  <div class="kicker">Publication report / web first</div>
-  <h1>{inline(meta["title"])}</h1>
-  <p class="subtitle">{inline(meta["subtitle"])}</p>
-  <div class="facts">
-    <div>source</div><div>{escape(source_label)}</div>
-    <div>lines</div><div>{meta["md_lines"]}</div>
-    <div>sections</div><div>{meta["h2_count"]}</div>
-    <div>code blocks</div><div>{meta["code_block_count"]}</div>
+  <div class="cover-visual"></div>
+  <div class="cover-line"></div>
+  <div class="cover-dot one"></div>
+  <div class="cover-dot two"></div>
+  <div class="brand">KNOWLEDGE PUBLICATION</div>
+  <div class="cover-copy">
+    <p class="eyebrow">Reader-ready advisory report</p>
+    <h1>{inline(meta["title"])}</h1>
+    <p class="lead">{inline(meta["subtitle"])}</p>
+    <div class="cover-proof">
+      <div><b>{meta["h2_count"]}</b>章节路径</div>
+      <div><b>{meta["code_block_count"]}</b>代码/示例</div>
+      <div><b>01</b>{first_topic}</div>
+    </div>
   </div>
+  <footer class="folio"><span>KNOWLEDGE PUBLICATION</span><span>封面</span><span>01</span></footer>
 </section>
 <section class="page toc">
   <h2>Section map</h2>
@@ -699,10 +760,15 @@ def main() -> int:
         source_bytes = Path(source).read_bytes()
 
     source_text = source_bytes.decode("utf-8", errors="ignore")
+    original_source_bytes = source_bytes
+    source_text, source_normalized = normalize_cached_markdown_text(source_text)
+    if source_normalized:
+        source_bytes = source_text.encode("utf-8")
+    source_label = source if is_url(source) else Path(source).name
 
     if looks_like_business_html(source_text):
         source_html_path.write_bytes(source_bytes)
-        publication_html, content_meta = build_business_publication_html(source_text, source, args.slug, out_dir)
+        publication_html, content_meta = build_business_publication_html(source_text, source_label, args.slug, out_dir)
         meta = {
             **content_meta,
             "source": source,
@@ -717,7 +783,7 @@ def main() -> int:
     elif looks_like_business_markdown(source_text):
         md_path.write_bytes(source_bytes)
         markdown = md_path.read_text(encoding="utf-8")
-        publication_html, content_meta = build_business_markdown_publication_html(markdown, source, args.slug, out_dir)
+        publication_html, content_meta = build_business_markdown_publication_html(markdown, source_label, args.slug, out_dir)
         meta = {
             **content_meta,
             "source": source,
@@ -744,7 +810,13 @@ def main() -> int:
             "md_sha256_16": sha16(md_path),
             "mode": "publication-report",
         }
-        html_path.write_text(build_html(markdown, meta, source), encoding="utf-8")
+        html_path.write_text(build_html(markdown, meta, source_label), encoding="utf-8")
+    if source_normalized:
+        meta.update({
+            "source_normalized": True,
+            "original_source_bytes": len(original_source_bytes),
+            "original_source_sha256_16": hashlib.sha256(original_source_bytes).hexdigest()[:16],
+        })
     meta.update({"html_bytes": html_path.stat().st_size, "html_sha256_16": sha16(html_path)})
 
     chrome = find_chrome()

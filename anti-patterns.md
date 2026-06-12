@@ -8,18 +8,19 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 ## Anti-Patterns And Corrections
 
-### 0. Consulting Skin Applied To Non-Consulting Documents
+### 0. Fake Consulting Skin Instead Of A Real Publication Report
 
-**Symptom:** A normal tutorial, API guide, workflow manual, or best-practices document is given a McKinsey-style redline cover, executive tone, or boardroom visual system even though the source is not a business diagnosis.
+**Symptom:** A tutorial, API guide, workflow manual, best-practices document, or business report gets a superficial red/navy skin, but the PDF still feels like a plain source dump or a generic booklet.
 
-**Why it matters:** Consulting polish is not universally better. For technical documentation, the job is comprehension, navigation, code readability, and trust. A boardroom skin can make a guide feel pretentious, sparse, and harder to read.
+**Why it matters:** The required standard is McKinsey-inspired publication quality for every output. That means strong cover, clear executive/reader promise, section rhythm, evidence blocks, readable exhibits, and source trace. A decorative skin without structure is worse than honest documentation because it claims authority without earning it.
 
-**Correction:** Choose the mode from the source and the user request:
+**Correction:** Use one report visual family for all outputs:
 
-- Use `technical manual` mode for guides, docs, tutorials, workflow references, API notes, and best-practices pages.
-- Use `McKinsey-style consulting` mode only when the user explicitly asks for consulting, board-report, executive strategy, or business diagnosis output.
-- Do not let a prior McKinsey-style request pollute the default Markdown-to-PDF script.
-- For technical docs, prioritize CJK-safe title layout, readable code blocks, section map, compact chapter pages, and a documentation aesthetic.
+- All outputs use McKinsey-style publication structure by default.
+- Business reports use answer, evidence, implication, action.
+- Technical docs use what matters, how to use it, examples, checklist.
+- Never invent unsupported business recommendations for non-business source material.
+- Never downgrade to a plain technical-manual/booklet aesthetic.
 
 ### 0.0.1 Business Diagnosis HTML Treated As Generic Documentation
 
@@ -95,11 +96,19 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 ### 0.6 Build Pipeline Label Printed On The Cover
 
-**Symptom:** The cover includes internal production copy such as `DESIGNED HTML FIRST` or `PRINTED TO PDF WITH CHROME`.
+**Symptom:** The cover includes internal production copy such as `DESIGNED HTML FIRST`, `PRINTED TO PDF WITH CHROME`, `Publication report / web first`, or other generator-facing labels.
 
 **Why it matters:** The PDF reader needs the document, not the converter's self-description. Pipeline proof belongs in metadata, evals, or delivery notes.
 
 **Correction:** Keep reader-facing covers clean. Move pipeline labels, Chrome proof, hashes, and generation notes into `<slug>-meta.json`, evals, gallery copy, or the final response.
+
+### 0.6.1 Weak Cover That Is Not Publication Level
+
+**Symptom:** The cover has a centered title on a decorative grid, generic vertical bars, or a sparse template look. It may be technically clean, but it does not feel like a serious consulting/publication report.
+
+**Why it matters:** The cover sets the quality contract. If page 1 looks like a default template, the reader will not trust later claims of "publication report" or "McKinsey style".
+
+**Correction:** Every cover should use the same high-quality report family as the accepted business overview PDF: dark editorial field, sharp red/navy/teal system, strong title block, meaningful eyebrow, visual motion/figure cue, stable folio, and no source/debug table on the cover. Put source paths, hashes, and generation notes in metadata/evals, not page 1.
 
 ### 0.7 Raw Markdown Syntax Inside Blockquotes
 

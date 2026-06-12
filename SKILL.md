@@ -16,7 +16,7 @@ Use this skill to turn Markdown into a designed, readable PDF by following the f
 
 This skill exists because direct Markdown-to-PDF conversion often produces plain text pages. The better route is to make the PDF layout as a web page first, then print that page.
 
-Default output contract: always produce a publication report, not a generic booklet. Even technical documentation must use a publication-report structure optimized for documentation: cover, section map, clear chapters, evidence/examples, source trace, preview/contact sheet, and eval. Do not provide a plain/quick booklet fallback.
+Default output contract: always produce a McKinsey-inspired publication report, not a generic booklet. Every output, including technical documentation, must use the same executive-report visual family as the best business overview examples: dark editorial cover, sharp red/navy/teal system, section map, answer-first front matter, clear chapters, evidence/examples, source trace, preview/contact sheet, and eval. Do not provide a plain/quick booklet fallback or a separate low-polish documentation aesthetic.
 
 ## When To Use
 
@@ -75,23 +75,23 @@ Collect basic source metadata:
 
 Treat the HTML as the PDF design surface.
 
-Use a strong but print-safe publication direction. Good defaults:
+Use a strong but print-safe McKinsey-inspired publication direction. Good defaults:
 
-- Editorial technical manual
-- Archive/index card
-- Dense but readable documentation booklet
-- Monochrome with one or two sharp accent colors
+- Executive advisory report
+- Research-institute field guide
+- Dense but readable consulting report
+- Dark editorial cover with red/navy/teal accents
 
 Avoid generic web-app landing pages. This is not a marketing page; it is a printable document.
 
-#### Default Publication Documentation Mode
+#### Default McKinsey-Style Publication Mode
 
 Use this publication-report mode for ordinary Markdown docs such as tutorials, best-practices guides, API notes, workflow references, and code-heavy documentation:
 
-- Prefer a documentation booklet aesthetic over a consulting deck aesthetic.
+- Use the same McKinsey-style visual family as business overview PDFs. Technical documents should be consulting-grade publications, not plain documentation booklets.
 - Still produce a publication report. Do not fall back to a plain generic booklet with only cover, table of contents, and dumped Markdown body.
 - Optimize for comprehension: section map, stable chapter hierarchy, readable paragraphs, strong code-block contrast, and CJK-safe cover/title layout.
-- Use warm paper, restrained grid/rule details, and one or two accents when useful.
+- Use white paper interiors, strong dark cover, restrained gray rules, red/navy/teal accents, stable folios, and exhibit-like evidence blocks.
 - Preserve authoring structure: Markdown pipe tables must render as real tables, MDX-style callouts must render as designed callout boxes, and thematic breaks must render as rules instead of raw syntax.
 - Prevent page-bottom collisions: do not print fixed footers unless the content area reserves a real bottom safe zone, and do not leave headings or heading-callout pairs orphaned at the bottom of a page.
 - Keep production notes out of reader-facing pages: cover pages must not show pipeline labels such as `DESIGNED HTML FIRST` or `PRINTED TO PDF WITH CHROME`; those belong in metadata or evals, not the PDF body.
@@ -99,8 +99,8 @@ Use this publication-report mode for ordinary Markdown docs such as tutorials, b
 - Distinguish runnable code from documentation excerpts. Fenced `markdown`, `mdx`, or prose examples should render as light documentation snippets, not black terminal/code blocks.
 - Render business diagnosis chains, issue trees, and root-cause paths as light flow/chain components. Do not print `→`, `├──`, or `└──` narrative chains as black executable code blocks.
 - Suppress source-acquisition preambles such as `Documentation Index`, `llms.txt`, and "discover all available pages" blocks when they appear before the real document title.
-- Do not add consulting-style executive issue maps, McKinsey-style redline systems, or invented business recommendations unless the user explicitly requests that tone.
-- Review `anti-patterns.md`, especially the warning against applying a consulting skin to non-consulting documents.
+- Do not invent business recommendations for non-business documents. Instead, translate the source into consulting-style guide structure: "what matters", "how to use it", "evidence/examples", and "review checklist".
+- Review `anti-patterns.md`, especially weak covers, raw source leakage, sparse pages, and eval false positives.
 
 #### McKinsey-Style Consulting Mode
 

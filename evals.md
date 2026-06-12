@@ -95,7 +95,8 @@ Score each dimension from 0 to 2.
 ### 2. Consulting Visual System
 
 - White paper, charcoal text, restrained gray rules, one sharp red accent, and optional deep blue secondary emphasis.
-- No gradients, shadows, beige editorial textures, playful styling, rounded card-heavy layouts, or decorative imagery.
+- Cover and chapter system match the accepted McKinsey-style business overview family: dark editorial cover, red/navy/teal accents, stable folio, and serious publication rhythm.
+- No weak template covers, decorative grids, reader-facing source/debug tables, playful styling, rounded card-heavy layouts, or generic booklet aesthetics.
 - Typography is sans-serif, compact, and hierarchical.
 
 ### 3. Exhibit Discipline
@@ -200,6 +201,7 @@ The evaluation must be `Fail` regardless of numeric subtotal when any of these a
 - A business diagnosis HTML report is mostly a source-table dump with only light styling.
 - A business overview Markdown report with IYA/PS/category/action signals is converted as a generic Markdown booklet instead of `business-markdown-publication`.
 - Any conversion falls back to a generic booklet mode instead of publication-report output.
+- The cover is not publication level: generic centered title, decorative grid, weak vertical bars, source/debug table on page 1, or reader-facing pipeline label.
 - The PDF has no editorial hero, research-framework page, infographic, rebuilt figure/chart page, or chapter rhythm.
 - The eval claims a perfect score while the contact sheet shows dense table pages with little visual hierarchy.
 - The output includes reader-facing pipeline/tooling notes, fallback messages, metadata references, or Codex/API caveats.
