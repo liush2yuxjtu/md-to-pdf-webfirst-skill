@@ -23,6 +23,61 @@ Record these facts in the output evaluation file:
 - Whether the cover preview was visually inspected
 - Whether a full contact sheet or representative page set was visually inspected, not only the cover
 
+## Evaluation Artifact Menu
+
+Every publication-report run must produce at least one Markdown evaluation file. HTML evaluation files are optional reviewer/gallery surfaces, but should be produced whenever the user asks for a gallery, changelog, browser-review page, GitHub Pages update, or a non-technical review handoff.
+
+### Required Markdown Eval
+
+`<slug>-evals.md`
+
+- Primary machine-readable and human-readable scorecard.
+- Must include Required Evidence, rubric scores, hard-fail scan, decision, fixes made, and remaining recommendations.
+- Must be generated for `publication-report`, `business-html-publication`, and `business-markdown-publication` modes.
+- Must be referenced from metadata as `evals`.
+
+### Recommended HTML Eval
+
+`<slug>-evals.html`
+
+- Browser-friendly companion to `<slug>-evals.md`.
+- Use for gallery/changelog pages, non-technical review, or side-by-side PDF QA.
+- Must link or name the PDF, designed HTML, cover preview, contact sheet, and metadata.
+- Must not contain internal process excuses, Codex/API caveats, or fallback notes as reader-facing content.
+- Should be referenced from metadata as `evals_html` when generated.
+
+### Optional Focused Markdown Evals
+
+Use these only when the run needs deeper inspection, or when a prior review comment targets the relevant failure class:
+
+| File | Purpose | When to create |
+| --- | --- | --- |
+| `<slug>-page-review.md` | Page-by-page display QA. | Long reports, repeated visual defects, or user asks for page-by-page review. |
+| `<slug>-source-fidelity.md` | Source-to-output metric and table trace. | Business reports, executive metrics, or suspected extraction mistakes. |
+| `<slug>-anti-pattern-review.md` | Explicit scan against `anti-patterns.md`. | McKinsey/consulting polish, publication redesigns, or regression reviews. |
+| `<slug>-readability.md` | Typography, table size, whitespace, and A4 readability check. | Any complaint about tiny text, blank pages, cramped charts, or unreadable tables. |
+| `<slug>-gallery-entry.md` | Short changelog/gallery summary. | GitHub Pages gallery or changelog updates. |
+
+### Optional Focused HTML Evals
+
+HTML variants should mirror the Markdown file names when a reviewer needs a browser surface:
+
+| File | Purpose | When to create |
+| --- | --- | --- |
+| `<slug>-page-review.html` | Visual reviewer page with page thumbnails and comments. | Page-by-page design review, gallery QA, or stakeholder review. |
+| `<slug>-source-fidelity.html` | Browser-readable evidence trace. | Metric-heavy reports where trust depends on source lineage. |
+| `<slug>-anti-pattern-review.html` | Anti-pattern checklist with pass/fail badges. | Skill regression review or consulting mentor review. |
+| `<slug>-readability.html` | Readability inspection surface. | Typography/table-size fixes or mobile/browser preview checks. |
+| `<slug>-gallery-entry.html` | Embeddable gallery/changelog card. | GitHub Pages gallery and changelog pages. |
+
+### Naming And Metadata Rules
+
+- Put eval artifacts beside the generated PDF unless the gallery/changelog system has a dedicated folder.
+- Do not overwrite prior evals for a materially different PDF; use a fresh slug or timestamp.
+- Metadata must at minimum point to `<slug>-evals.md`; add `evals_html` and focused eval paths when present.
+- The eval artifact must describe what was inspected, not only what the generator intended.
+- If a hard-fail condition is present, the eval must say `Fail` even if the numeric subtotal looks good.
+
 ## Scoring
 
 Score each dimension from 0 to 2.

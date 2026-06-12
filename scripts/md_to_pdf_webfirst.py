@@ -46,6 +46,66 @@ def inline(text: str) -> str:
     return text
 
 
+def eval_markdown_to_html(markdown: str, title: str) -> str:
+    body: list[str] = []
+    in_table = False
+    for raw in markdown.splitlines():
+        line = raw.rstrip()
+        if in_table and not line.startswith("|"):
+            body.append("</tbody></table>")
+            in_table = False
+        if not line:
+            continue
+        if line.startswith("# "):
+            body.append(f"<h1>{inline(line[2:].strip())}</h1>")
+        elif line.startswith("## "):
+            body.append(f"<h2>{inline(line[3:].strip())}</h2>")
+        elif line.startswith("### "):
+            body.append(f"<h3>{inline(line[4:].strip())}</h3>")
+        elif line.startswith("- "):
+            body.append(f"<p class=\"bullet\">{inline(line[2:].strip())}</p>")
+        elif line.startswith("|") and line.endswith("|"):
+            cells = [inline(cell.strip()) for cell in line.strip("|").split("|")]
+            if all(re.fullmatch(r":?-{3,}:?", cell.replace("\\:", ":")) for cell in cells):
+                continue
+            tag = "th" if not in_table else "td"
+            if not in_table:
+                body.append("<table><tbody>")
+                in_table = True
+            body.append("<tr>" + "".join(f"<{tag}>{cell}</{tag}>" for cell in cells) + "</tr>")
+        else:
+            body.append(f"<p>{inline(line)}</p>")
+    if in_table:
+        body.append("</tbody></table>")
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{escape(title)}</title>
+<style>
+:root {{ --ink:#172033; --muted:#687386; --line:#d7dde7; --soft:#f5f7fb; --accent:#b91c2c; --blue:#17365d; }}
+body {{ margin:0; background:#f7f8fb; color:var(--ink); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,"Noto Sans CJK SC","PingFang SC",sans-serif; }}
+main {{ max-width:960px; margin:40px auto; padding:40px 48px; background:#fff; border:1px solid var(--line); }}
+h1 {{ margin:0 0 24px; font-size:32px; line-height:1.12; color:var(--blue); }}
+h2 {{ margin:32px 0 12px; padding-top:18px; border-top:2px solid var(--line); font-size:18px; letter-spacing:.02em; text-transform:uppercase; color:var(--accent); }}
+h3 {{ margin:24px 0 10px; font-size:16px; color:var(--blue); }}
+p {{ margin:8px 0; }}
+.bullet {{ padding-left:18px; position:relative; }}
+.bullet::before {{ content:""; position:absolute; left:0; top:.68em; width:6px; height:6px; background:var(--accent); }}
+table {{ width:100%; border-collapse:collapse; margin:14px 0 22px; font-size:14px; }}
+th,td {{ border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }}
+th {{ background:var(--soft); color:var(--blue); font-weight:700; }}
+code {{ background:#eef2f8; padding:1px 5px; border-radius:3px; }}
+@media print {{ body {{ background:#fff; }} main {{ margin:0; max-width:none; border:0; }} }}
+</style>
+</head>
+<body><main>
+{chr(10).join(body)}
+</main></body>
+</html>"""
+
+
 def is_table_row(line: str) -> bool:
     stripped = line.strip()
     return stripped.startswith("|") and stripped.endswith("|") and stripped.count("|") >= 2
@@ -714,6 +774,7 @@ def main() -> int:
     publication_modes = {"business-html-publication", "business-markdown-publication", "publication-report"}
     if meta.get("mode") in publication_modes:
         eval_path = out_dir / f"{args.slug}-evals.md"
+        eval_html_path = out_dir / f"{args.slug}-evals.html"
         checked_pages = "cover, section map, representative body page, table/example page, source/eval artifact"
         if meta.get("mode") in {"business-html-publication", "business-markdown-publication"}:
             checked_pages = "cover, executive summary, figure page, table page, action/source page"
@@ -722,52 +783,55 @@ def main() -> int:
             fixes_made = "business Markdown auto-routed to publication mode; generated cover, executive summary, infographic/figure rhythm, source table, action page, metadata, preview, contact sheet."
         elif meta.get("mode") == "business-html-publication":
             fixes_made = "business HTML auto-routed to publication mode; generated reader-ready report structure, rebuilt exhibits, metadata, preview, contact sheet."
-        eval_path.write_text(
-            "\n".join(
-                [
-                    "# PDF Evaluation",
-                    "",
-                    "## Evidence",
-                    "",
-                    f"- Source: {source}",
-                    f"- HTML: {html_path.resolve()}",
-                    f"- PDF: {pdf_path.resolve()}",
-                    f"- Preview: {preview_path.resolve() if preview_path.exists() else 'not generated'}",
-                    f"- Contact sheet: {meta.get('contact_sheet', 'not generated')}",
-                    f"- Pages: {meta['pdf_pages']}",
-                    f"- First three pages extracted text: {meta['first3_text_chars']}",
-                    f"- PDF bytes: {meta['pdf_bytes']}",
-                    f"- PDF SHA-256 short: {meta['pdf_sha256_16']}",
-                    "- Chrome headers/footers absent: true",
-                    f"- Representative pages inspected: {checked_pages}",
-                    "",
-                    "## McKinsey-Style Rubric",
-                    "",
-                    "| Dimension | Score | Notes |",
-                    "| --- | ---: | --- |",
-                    "| Executive Narrative | 2 | Publication structure is present and starts with a clear cover/section map. |",
-                    "| Consulting Visual System | 2 | Publication-style cover, restrained red/navy system, stable folios, no reader-facing tooling labels. |",
-                    "| Exhibit Discipline | 2 | Major tables/examples are preserved as structured reader-facing evidence. |",
-                    "| Information Density And Readability | 2 | Body/table type follows readable A4 floors; source is not flattened into a generic booklet. |",
-                    "| Print And Pagination Quality | 2 | A4 CSS, explicit page rhythm, preview/contact sheet generated. |",
-                    "| Source Fidelity | 2 | Source metrics, bullets, and tables are preserved or clearly derived. |",
-                    "| Mentor Anti-Pattern Scan | 2 | No raw Markdown table dump, no tiny typography, no pipeline labels, no metadata caveats in reader body. |",
-                    "",
-                    "## Decision",
-                    "",
-                    "Pass/Fail: Pass",
-                    "",
-                    "Total: 14 / 14",
-                    "",
-                    f"Fixes made: {fixes_made}",
-                    "",
-                    "Remaining recommendations: For longer L2 reports, add Hub/store-level evidence pages when source data is available.",
-                    "",
-                ]
-            ),
+        eval_text = "\n".join(
+            [
+                "# PDF Evaluation",
+                "",
+                "## Evidence",
+                "",
+                f"- Source: {source}",
+                f"- HTML: {html_path.resolve()}",
+                f"- PDF: {pdf_path.resolve()}",
+                f"- Preview: {preview_path.resolve() if preview_path.exists() else 'not generated'}",
+                f"- Contact sheet: {meta.get('contact_sheet', 'not generated')}",
+                f"- Pages: {meta['pdf_pages']}",
+                f"- First three pages extracted text: {meta['first3_text_chars']}",
+                f"- PDF bytes: {meta['pdf_bytes']}",
+                f"- PDF SHA-256 short: {meta['pdf_sha256_16']}",
+                "- Chrome headers/footers absent: true",
+                f"- Representative pages inspected: {checked_pages}",
+                "",
+                "## McKinsey-Style Rubric",
+                "",
+                "| Dimension | Score | Notes |",
+                "| --- | ---: | --- |",
+                "| Executive Narrative | 2 | Publication structure is present and starts with a clear cover/section map. |",
+                "| Consulting Visual System | 2 | Publication-style cover, restrained red/navy system, stable folios, no reader-facing tooling labels. |",
+                "| Exhibit Discipline | 2 | Major tables/examples are preserved as structured reader-facing evidence. |",
+                "| Information Density And Readability | 2 | Body/table type follows readable A4 floors; source is not flattened into a generic booklet. |",
+                "| Print And Pagination Quality | 2 | A4 CSS, explicit page rhythm, preview/contact sheet generated. |",
+                "| Source Fidelity | 2 | Source metrics, bullets, and tables are preserved or clearly derived. |",
+                "| Mentor Anti-Pattern Scan | 2 | No raw Markdown table dump, no tiny typography, no pipeline labels, no metadata caveats in reader body. |",
+                "",
+                "## Decision",
+                "",
+                "Pass/Fail: Pass",
+                "",
+                "Total: 14 / 14",
+                "",
+                f"Fixes made: {fixes_made}",
+                "",
+                "Remaining recommendations: For longer L2 reports, add Hub/store-level evidence pages when source data is available.",
+                "",
+            ]
+        )
+        eval_path.write_text(eval_text, encoding="utf-8")
+        eval_html_path.write_text(
+            eval_markdown_to_html(eval_text, f"{args.slug} PDF Evaluation"),
             encoding="utf-8",
         )
         meta["evals"] = str(eval_path.resolve())
+        meta["evals_html"] = str(eval_html_path.resolve())
         meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(meta, ensure_ascii=False, indent=2))
     return 0
