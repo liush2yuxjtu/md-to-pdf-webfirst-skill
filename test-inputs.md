@@ -4,7 +4,16 @@ Use this file to choose Markdown/HTML inputs for regression runs and to collect 
 
 ## Required Review Packet Per Test Input
 
-For every selected input, generate a fresh output folder containing:
+For every selected input, generate outputs from a clear context:
+
+- Use a fresh subagent or non-interactive Codex execution when the regression follows a skill update.
+- Use a clearly named clean workdir such as `/tmp/md-to-pdf-webfirst-regression/<date>-<slug>/`.
+- Pass the updated skill path explicitly: `/Users/liushiyuwin/.codex/skills/md-to-pdf-webfirst/SKILL.md`.
+- Pass the raw input path explicitly.
+- Do not hand-fix the raw input, generated HTML, or generated PDF to make the review pass.
+- Do not run from a crowded repo/worktree where stale outputs can be mistaken for fresh artifacts.
+
+For every selected input, the fresh output folder must contain:
 
 - `<slug>.html`
 - `<slug>.pdf`
@@ -106,10 +115,12 @@ Run this loop before accepting a skill change:
 1. Pick at least one documentation Markdown input.
 2. Pick at least one business Markdown input.
 3. Pick at least one HTML input.
-4. Generate PDF, metadata, preview/contact sheet, `<slug>-evals.md`, and `<slug>-evals.html`.
-5. Ask a human reviewer to mark display defects and eval misses.
-6. Convert repeated or severe comments into `anti-patterns.md` and `evals.md`.
-7. Update scripts/templates only after the anti-pattern/eval wording is clear.
-8. Rerun the same input in a fresh output directory and compare contact sheets.
+4. Start a fresh subagent or non-interactive Codex run in a clean, clearly named workdir.
+5. Give that run only the updated skill path, the selected raw input path, and the output directory.
+6. Generate PDF, metadata, preview/contact sheet, `<slug>-evals.md`, and `<slug>-evals.html`.
+7. Ask a human reviewer to mark display defects and eval misses.
+8. Convert repeated or severe comments into `anti-patterns.md` and `evals.md`.
+9. Update scripts/templates only after the anti-pattern/eval wording is clear.
+10. Rerun the same input through a fresh subagent or non-interactive Codex run in a new output directory and compare contact sheets.
 
 Minimum acceptance: the eval must catch the human's top visible concern. If the human says "this looks bad" and the eval still passes perfectly, the eval is wrong and must be fixed before the template is called done.
