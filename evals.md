@@ -12,6 +12,8 @@ Hard fail any PDF that exposes raw input syntax or implementation code as reader
 
 Hard fail weak generic covers that expose converter boilerplate such as `PDF-friendly web edition`, `Markdown Document`, or source/debug tables on page 1. A publication cover must use a reader-facing title/subtitle derived from the source or from neutral report language.
 
+For publication-report, MGI-style, or business-report outputs, hard fail a cover that lacks reader-facing publication metadata: title, subtitle, report date/period, and author/institution. When no publisher is supplied, the expected default institution is `Win-Channel AI Research Institute`.
+
 ## Required Evidence
 
 Record these facts in the output evaluation file:
@@ -29,6 +31,10 @@ Record these facts in the output evaluation file:
 - Raw source leakage scan for HTML/CSS/Markdown authoring syntax in extracted PDF text
 - Source-authored raw syntax examples, if any, kept separate from leakage
 - Weak generic cover scan for converter boilerplate
+- Cover metadata check: topic-relevant visual/human cue, title, subtitle, date/period, institution/authors
+- Front-matter check: designed contents page and one-page executive summary when the report is long or business-oriented
+- Figure vocabulary check: whether sparse numbers, percentages, before/after data, ordinal categories, geography, and part-to-whole data were mapped to suitable exhibit types when present
+- Evidence system check: figure numbers, source notes, footnotes/references, and related-publication page when available
 
 ## Evaluation Artifact Menu
 
@@ -121,6 +127,8 @@ Score each dimension from 0 to 2.
 
 - White paper, charcoal text, restrained gray rules, one sharp red accent, and optional deep blue secondary emphasis.
 - Cover and chapter system match the accepted McKinsey-style business overview family: dark editorial cover, red/navy/teal accents, stable folio, and serious publication rhythm.
+- Publication covers include topic-relevant human/editorial imagery plus title, subtitle, date/period, and institution/authors.
+- Long reports use designed contents, one-page summary, and chapter-opener visual rhythm where practical.
 - No weak template covers, decorative grids, reader-facing source/debug tables, playful styling, rounded card-heavy layouts, or generic booklet aesthetics.
 - Typography is sans-serif, compact, and hierarchical.
 
@@ -129,6 +137,8 @@ Score each dimension from 0 to 2.
 - Major tables or analytic blocks are labeled as exhibits.
 - Each major exhibit has a short takeaway or implication nearby.
 - Tables are compact, scannable, and avoid avoidable row splitting.
+- Sparse numeric pages become number-in-figure exhibits rather than raw metric lists.
+- Data shape drives chart choice: unit blocks/stacked bars for percentages, before/after frames for baseline-target data, bubble/circle matrices for ordered categories, pie/donut for part-to-whole, and map bubbles for geography.
 - Missing exhibit takeaways should cap this score at `1`, even if the tables look clean.
 
 ### 4. Information Density And Readability
@@ -150,6 +160,7 @@ Score each dimension from 0 to 2.
 - Any added executive summary is clearly derived from source content.
 - Metadata records source file/hash and output hashes.
 - Executive-page metrics are checked against the source table or recorded derivation.
+- External cases or public references are cited when browsing was used for credibility; otherwise the eval explicitly says evidence is source-only.
 
 ### 7. Mentor Anti-Pattern Scan
 
@@ -227,9 +238,14 @@ The evaluation must be `Fail` regardless of numeric subtotal when any of these a
 - A business overview Markdown report with IYA/PS/category/action signals is converted as a generic Markdown booklet instead of `business-markdown-publication`.
 - Any conversion falls back to a generic booklet mode instead of publication-report output.
 - The cover is not publication level: generic centered title, decorative grid, weak vertical bars, source/debug table on page 1, or reader-facing pipeline label.
+- A publication/business cover lacks subtitle, report date/period, or author/institution.
 - The PDF has no editorial hero, research-framework page, infographic, rebuilt figure/chart page, or chapter rhythm.
+- A long/business report lacks a designed table of contents or one-page executive summary.
+- Sparse data pages print a handful of numbers or small tables without a number-in-figure, big-number callout, or suitable exhibit.
+- Obvious data shapes are not visualized: percentages without share/unit-block treatment, ordinal low/middle/high data without bubbles/circles, geographic data without map/bubble treatment when location is central, or current/future data without a comparison frame.
 - The eval claims a perfect score while the contact sheet shows dense table pages with little visual hierarchy.
 - The output includes reader-facing pipeline/tooling notes, fallback messages, metadata references, or Codex/API caveats.
 - A page contains only a short narrative/table fragment with excessive blank space and no evidence block.
+- The final reader-facing page is an internal process note instead of references, methodology, related publications, or a deliberate closing page.
 
 For business diagnosis HTML inputs, a passing eval must cite at least one full contact sheet or multiple page previews and must name the pages checked.

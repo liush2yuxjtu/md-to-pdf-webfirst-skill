@@ -7,14 +7,18 @@ Also use it automatically for local business diagnosis HTML reports when the sou
 Publication report mode is stronger than ordinary consulting polish. It should create a complete research-report reading experience:
 
 1. Full-bleed or image-led cover.
-2. Foreword / preface.
-3. Table of contents with visible chapter span.
-4. Executive summary.
-5. Editorial hero or infographic page.
-6. Alternating chapter openers, body pages, figure pages, and appendix pages.
-7. Stable running header/footer with report name, institution label, page number, source notes, and figure numbering.
-8. Figures rebuilt from tables, not only copied tables.
-9. References / methodology page.
+2. Cover metadata: title, subtitle, report date, and author/institution line.
+3. Foreword / preface with deliberate whitespace, not a dense wall of text.
+4. Designed table of contents with visible chapter span.
+5. One-page executive summary.
+6. Editorial hero or infographic page.
+7. Alternating chapter openers, body pages, figure pages, and appendix pages.
+8. Topic-relevant portrait/human/editorial visuals on the cover and between major chapters when assets or generation are available.
+9. Stable running header/footer with report name, institution label, page number, source notes, and figure numbering.
+10. Figures rebuilt from tables, not only copied tables.
+11. References / methodology / related publications page when available.
+
+For generated reports that do not provide a publisher, use `Win-Channel AI Research Institute` as the default institution label. Keep the label reader-facing; do not expose skill names, Codex runtime notes, API caveats, hashes, or generation failures in the PDF body.
 
 ## Required References
 

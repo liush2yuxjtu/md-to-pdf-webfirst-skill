@@ -142,6 +142,38 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Every cover should use the same high-quality report family as the accepted business overview PDF: dark editorial field, sharp red/navy/teal system, strong title block, meaningful eyebrow, visual motion/figure cue, stable folio, and no source/debug table on the cover. Put source paths, hashes, and generation notes in metadata/evals, not page 1.
 
+### 0.6.2 Faceless Cover With Missing Publication Metadata
+
+**Symptom:** The cover has no topic-relevant human figure, portrait, field image, or editorial visual; it also lacks one or more of subtitle, report date/period, or author/institution.
+
+**Why it matters:** Publication reports need immediate authority and context. A cover that only says the title feels like an internal export, not a research institute deliverable.
+
+**Correction:** Add a topic-related human/editorial visual, reader-facing subtitle, report date or analysis period, and author/institution line. When the source has no publisher, use `Win-Channel AI Research Institute` by default. Do not use McKinsey logos or imitate exact proprietary assets.
+
+### 0.6.3 Plain Contents Page
+
+**Symptom:** The table of contents is a bare list with huge empty space, no chapter spans, and no designed hierarchy.
+
+**Why it matters:** A publication TOC is a navigation contract. If it looks like an auto-generated placeholder, the report loses authority before the evidence starts.
+
+**Correction:** Design the contents page with clear chapter numbers, page spans or section spans, section grouping, and strong typographic hierarchy. Avoid filler whitespace.
+
+### 0.6.4 No One-Page Executive Summary
+
+**Symptom:** A long or business-oriented report jumps from cover/preface/TOC into body pages without a one-page summary.
+
+**Why it matters:** Executives need the answer before the evidence. Without a one-page summary, the PDF reads like a converted document rather than a decision publication.
+
+**Correction:** Add a standalone one-page summary: one clear judgment, three to five supporting points, key numbers, and immediate implications/actions.
+
+### 0.6.5 Missing Chapter Portrait Or Editorial Interstitials
+
+**Symptom:** A long multi-chapter report uses only text pages and tables between chapters, with no portrait, human figure, line-art, or editorial image rhythm.
+
+**Why it matters:** Long research reports need pacing. Chapter visuals create memory, orientation, and publication-level polish.
+
+**Correction:** Add topic-relevant chapter openers using approved assets, generated images, or designed local fallback artwork. The page still needs a job: chapter question, section title, and visual cue.
+
 ### 0.7 Raw Markdown Syntax Inside Blockquotes
 
 **Symptom:** A blockquote prints raw authoring syntax such as `## Documentation Index` instead of rendering the heading text.
@@ -205,6 +237,38 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 **Why it matters:** A PDF that looks tidy in thumbnails can become unreadable on A4. Consulting polish is not fewer pages; it is fast comprehension at real reading size.
 
 **Correction:** Do not trade readability for page count. Increase the page count, split wide tables, simplify columns, or repeat context headers. As a default floor, use body/list text `>= 11px`, normal tables `>= 10px`, dense/wide tables `>= 9.5px`, notes/callouts `>= 10px`, and code/documentation snippets `>= 9.5px`.
+
+### 0.15 Sparse Data Left As Raw Numbers
+
+**Symptom:** A page contains only a few numbers, a small table, or six metric cards, with little visual argument.
+
+**Why it matters:** Sparse data is not automatically readable. In a McKinsey-style publication, a few important numbers should become an exhibit, not empty space plus raw metrics.
+
+**Correction:** Turn sparse data into a number-in-figure page: large key number, left-margin callout, mini chart, unit-block display, before/after frame, or concise figure with source note.
+
+### 0.16 Missed Chart-Type Opportunity
+
+**Symptom:** The source has data suited to a stronger visual form, but the PDF prints it as plain rows: percentages without share displays, before/future data without comparison frames, low/middle/high categories as text, or geographic values as a table.
+
+**Why it matters:** Consulting exhibits should reveal the pattern. Picking no chart, or the wrong chart, forces the reader to do the visual reasoning themselves.
+
+**Correction:** Match figure type to data shape: unit blocks or stacked bars for percentages, before/after frames for baseline-target comparisons, circle-size/bubble matrices for ordered categories, pie/donut for part-to-whole, and map bubbles for geography.
+
+### 0.17 Claims Without Credibility Evidence
+
+**Symptom:** The report makes recommendations or cites practices without source notes, cases, or external evidence when the source material itself is thin.
+
+**Why it matters:** A polished PDF with weak evidence can feel overconfident. Credibility comes from traceable sources and real examples.
+
+**Correction:** Preserve source notes under figures, add footnotes, and when the user permits browsing, search for a small set of credible public cases. Cite them. If no external search is possible, label the evidence as source-only.
+
+### 0.18 Missing Related Publications Or Reference Page
+
+**Symptom:** The report ends abruptly or with a tooling note, without references, methodology, or related reports.
+
+**Why it matters:** Research publications gain authority by showing their evidence trail and series context.
+
+**Correction:** End with references, methodology, and related publications when any prior generated reports or relevant public references are available. Never print internal notes such as "metadata retained in source file" as the final reader-facing page.
 
 ### 1. Styling Before Storyline
 
