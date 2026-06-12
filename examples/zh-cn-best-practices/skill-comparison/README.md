@@ -6,7 +6,7 @@ Source Markdown:
 
 Skill locations found in this Git repo:
 
-- Current/new skill: `md-to-pdf-webfirst/SKILL.md`
+- Current/new skill: `SKILL.md`
 - Current/new script: `md-to-pdf-webfirst/scripts/md_to_pdf_webfirst.py`
 - Fix applied: default Markdown docs now use technical-documentation mode, not a consulting redline skin
 - Fix applied: Markdown pipe tables, MDX-style callouts, and thematic breaks now render as PDF components instead of raw source syntax
