@@ -51,7 +51,7 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Why it matters:** The skill promise is web-first publication output. A booklet fallback can pass technical PDF checks while failing the expected artifact level: editorial structure, page rhythm, source trace, visual evidence, contact sheet, and eval.
 
-**Correction:** Default every normal conversion to publication-report output. Technical documents can use a documentation-publication style, while business reports use consulting/publication style. Only allow a plain booklet when the user explicitly asks for a quick plain export or smoke test.
+**Correction:** Default every conversion to publication-report output. Technical documents can use a documentation-publication style, while business reports use consulting/publication style. Do not allow a plain booklet fallback.
 
 ### 0.1 Tail Appendix Forced Onto Its Own Page
 

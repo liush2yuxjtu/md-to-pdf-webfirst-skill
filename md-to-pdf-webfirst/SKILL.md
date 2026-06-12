@@ -16,7 +16,7 @@ Use this skill to turn Markdown into a designed, readable PDF by following the f
 
 This skill exists because direct Markdown-to-PDF conversion often produces plain text pages. The better route is to make the PDF layout as a web page first, then print that page.
 
-Default output contract: produce a publication report, not a generic booklet. Even technical documentation should use a publication-report structure optimized for documentation: cover, section map, clear chapters, evidence/examples, source trace, preview/contact sheet, and eval when quality matters. Only use a plain/quick booklet when the user explicitly asks for a quick plain export or an internal smoke test.
+Default output contract: always produce a publication report, not a generic booklet. Even technical documentation must use a publication-report structure optimized for documentation: cover, section map, clear chapters, evidence/examples, source trace, preview/contact sheet, and eval. Do not provide a plain/quick booklet fallback.
 
 ## When To Use
 
@@ -28,7 +28,7 @@ Use this skill when the user asks for any of these:
 - Generate a PDF-friendly web page first, then convert to PDF.
 - Produce evidence, preview images, hashes, page counts, or a `talk-html` report for the conversion.
 
-If the user only wants a quick plain PDF, still consider this skill when quality matters or when the output will be shared.
+If the user asks for a quick PDF, still use the publication-report route and keep the report concise rather than switching to a generic booklet.
 
 ## Final Workflow
 
@@ -290,7 +290,7 @@ After running it, still inspect the preview yourself. If the preview shows brows
 The output is successful only when:
 
 - The PDF was created from a designed HTML page, not direct plain Markdown conversion.
-- The design uses publication-report structure unless the user explicitly asked for a quick plain export.
+- The design uses publication-report structure.
 - For McKinsey-style or business-report requests, the design passes the `evals.md` rubric.
 - The PDF opens and has a real page count.
 - Text extraction works for at least the first few pages.
