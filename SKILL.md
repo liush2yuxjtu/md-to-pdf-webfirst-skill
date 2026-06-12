@@ -286,6 +286,8 @@ The helper defaults to publication-report output. For business diagnosis HTML in
 
 After running it, still inspect the preview yourself. If the preview shows browser headers, wrong pagination, or obvious layout problems, fix the HTML/CSS and rerun.
 
+For skill regression work, choose representative Markdown/HTML inputs from `test-inputs.md`. Generate the full review packet, let a human review the output, and feed repeated defects back into `anti-patterns.md`, `evals.md`, or the relevant script/template before accepting the change.
+
 ## Quality Bar
 
 The output is successful only when:
