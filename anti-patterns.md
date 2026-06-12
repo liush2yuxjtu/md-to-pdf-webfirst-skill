@@ -54,6 +54,14 @@ The reviewed PDF was directionally stronger than a raw HTML printout: it added a
 
 **Correction:** Default every conversion to publication-report output. Technical documents can use a documentation-publication style, while business reports use consulting/publication style. Do not allow a plain booklet fallback.
 
+### 0.0.5 Generic HTML Printed As Source Code
+
+**Symptom:** A `.html` input page appears in the PDF as literal source code: `<!doctype html>`, `<html>`, `<head>`, `<style>`, CSS variables such as `--paper`, selectors such as `body {`, or layout rules such as `box-sizing`.
+
+**Why it matters:** This is a converter failure, not a visual preference. A reader-facing publication must never expose implementation scaffolding as report content.
+
+**Correction:** Preserve the original file as `<slug>-source.html`, but extract readable content before rendering: keep title, headings, paragraphs, lists, tables, and gallery/card copy; strip `head`, `style`, `script`, `svg`, `nav`, `footer`, and browser/page chrome. Then pass the extracted reader Markdown through the publication-report renderer. The eval must hard-fail if extracted PDF text contains raw HTML/CSS markers.
+
 ### 0.1 Tail Appendix Forced Onto Its Own Page
 
 **Symptom:** A short final section such as `Related resources`, `Next steps`, or `References` is forced onto a separate mostly empty page because every second-level heading gets an unconditional page break.

@@ -57,7 +57,7 @@ curl -L --fail --silent --show-error "$URL" -o outputs/<slug>.md
 
 For local input, copy or read the existing Markdown path and keep the original untouched.
 
-For local HTML reports, keep the original file untouched and extract the report body into a new PDF-friendly HTML shell. Preserve source headings, tables, strong text, and business content. Do not print the original web preview directly unless it already passes the print-quality checks below.
+For local HTML reports or generated web pages, keep the original file untouched and preserve it as `<slug>-source.html`. Never treat the raw HTML file as Markdown text. Strip `head`, `style`, `script`, `svg`, `nav`, and browser/page chrome, extract the readable title/body/headings/tables/cards into reader Markdown, then render that through the same McKinsey-style publication-report shell. The PDF body must not show `<!doctype html>`, `<html>`, `<style>`, CSS variables, selectors, or raw DOM/CSS source.
 
 For local business diagnosis HTML reports, automatically use publication-report mode even when the prompt does not explicitly say `McKinsey`, `MGI`, or `publication`. Trigger this when the source contains business-report signals such as `RD`, `Hub`, `IYA`, `YoY`, `GIV`, `品类`, `诊断`, `行动`, multiple tables, and an executive/diagnosis title. A plain prompt like `$md-to-pdf-webfirst file:///...业务诊断报告.html` must produce a reader-ready publication PDF, not a lightly styled source-table dump.
 
@@ -149,6 +149,7 @@ The HTML should include:
 - no orphaned heading/exhibit labels at page bottoms
 - no detached continuation pages containing only a small tail fragment
 - no false-positive eval pass where a table-heavy source dump is scored as consulting/publication-ready without editorial hero, figure rhythm, or full-page visual review
+- no raw HTML/CSS source leakage when the input is an existing `.html` page; generic HTML must be semantically extracted before publication rendering
 - `@page { size: A4; margin: ... }`
 - explicit page breaks for cover and major sections
 - `@media print` rules that remove shadows and browser-only effects

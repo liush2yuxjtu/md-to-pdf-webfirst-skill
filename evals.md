@@ -8,6 +8,8 @@ Before scoring, review `anti-patterns.md`. Do not pass a PDF that has an obvious
 
 If `frontend-design` was invoked, also review `frontend-design.md` and add the Frontend Design Pass dimension below.
 
+Hard fail any PDF that exposes raw input syntax or implementation code as reader content, including `<!doctype html>`, `<html>`, `<head>`, `<style>`, `</style>`, CSS variables, selectors such as `body {`, or rules such as `box-sizing`. Existing HTML pages must be semantically extracted before publication rendering; they must not be printed as source.
+
 ## Required Evidence
 
 Record these facts in the output evaluation file:
@@ -22,6 +24,7 @@ Record these facts in the output evaluation file:
 - Whether Chrome default headers/footers are absent
 - Whether the cover preview was visually inspected
 - Whether a full contact sheet or representative page set was visually inspected, not only the cover
+- Raw source leakage scan for HTML/CSS/Markdown authoring syntax in extracted PDF text
 
 ## Evaluation Artifact Menu
 

@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+from html.parser import HTMLParser
 from pathlib import Path
 
 from pypdf import PdfReader
@@ -72,6 +73,149 @@ def normalize_cached_markdown_text(text: str) -> tuple[str, bool]:
 
     text = text.strip() + "\n"
     return text, text != original
+
+
+def looks_like_html(text: str) -> bool:
+    head = text.lstrip()[:600].lower()
+    return (
+        head.startswith("<!doctype html")
+        or head.startswith("<html")
+        or "<html" in head
+        or ("<body" in head and "</body" in text.lower())
+    )
+
+
+class ReadableHTMLToMarkdown(HTMLParser):
+    SKIP_TAGS = {"style", "script", "svg", "noscript", "template", "nav", "footer"}
+    BLOCK_TAGS = {"p", "div", "section", "article", "header", "main", "aside", "blockquote"}
+    HEADING_TAGS = {"h1": "#", "h2": "##", "h3": "###", "h4": "####"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self.title_parts: list[str] = []
+        self.meta_description = ""
+        self.skip_depth = 0
+        self.in_title = False
+        self.in_pre = False
+        self.in_anchor = False
+        self.anchor_href = ""
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        tag = tag.lower()
+        if tag in self.SKIP_TAGS:
+            self.skip_depth += 1
+            return
+        if self.skip_depth:
+            return
+        attr_map = {key.lower(): value or "" for key, value in attrs}
+        if tag == "meta" and attr_map.get("name", "").lower() == "description":
+            self.meta_description = attr_map.get("content", "").strip()
+            return
+        if tag == "title":
+            self.in_title = True
+            return
+        if tag in self.HEADING_TAGS:
+            self._newline(2)
+            self.parts.append(f"{self.HEADING_TAGS[tag]} ")
+        elif tag in self.BLOCK_TAGS:
+            self._newline(2 if tag in {"section", "article", "main", "aside"} else 1)
+        elif tag == "br":
+            self._newline(1)
+        elif tag == "li":
+            self._newline(1)
+            self.parts.append("- ")
+        elif tag == "pre":
+            self._newline(2)
+            self.parts.append("```text\n")
+            self.in_pre = True
+        elif tag == "tr":
+            self._newline(1)
+        elif tag in {"th", "td"}:
+            self.parts.append(" | ")
+        elif tag == "a":
+            self.in_anchor = True
+            self.anchor_href = attr_map.get("href", "")
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        if tag in self.SKIP_TAGS:
+            if self.skip_depth:
+                self.skip_depth -= 1
+            return
+        if self.skip_depth:
+            return
+        if tag == "title":
+            self.in_title = False
+        elif tag == "pre":
+            self.parts.append("\n```")
+            self.in_pre = False
+            self._newline(2)
+        elif tag == "a":
+            self.in_anchor = False
+            self.anchor_href = ""
+        elif tag in self.HEADING_TAGS or tag in self.BLOCK_TAGS or tag in {"li", "tr"}:
+            self._newline(2 if tag in self.HEADING_TAGS or tag in self.BLOCK_TAGS else 1)
+
+    def handle_data(self, data: str) -> None:
+        if self.skip_depth:
+            return
+        if self.in_title:
+            self.title_parts.append(data)
+            return
+        if not data.strip():
+            if self.in_pre:
+                self.parts.append(data)
+            return
+        if self.in_pre:
+            self.parts.append(data)
+            return
+        text = re.sub(r"\s+", " ", data).strip()
+        if not text:
+            return
+        self.parts.append(text)
+        self.parts.append(" ")
+
+    def _newline(self, count: int) -> None:
+        text = "".join(self.parts)
+        current = len(text) - len(text.rstrip("\n"))
+        if current < count:
+            self.parts.append("\n" * (count - current))
+
+    def markdown(self) -> tuple[str, str]:
+        raw_title = re.sub(r"\s+", " ", " ".join(self.title_parts)).strip()
+        raw = "".join(self.parts)
+        raw = re.sub(r"[ \t]+\n", "\n", raw)
+        raw = re.sub(r"\n[ \t]+", "\n", raw)
+        raw = re.sub(r"[ \t]{2,}", " ", raw)
+        raw = re.sub(r"\n{3,}", "\n\n", raw)
+        lines = [line.strip() for line in raw.splitlines()]
+        cleaned: list[str] = []
+        for line in lines:
+            if not line:
+                if cleaned and cleaned[-1]:
+                    cleaned.append("")
+                continue
+            if re.search(r"^(<!doctype|<html|<head|<style|</style>|<script|</script>)", line, re.I):
+                continue
+            if re.search(r"(\{|\}|--[a-z-]+:|box-sizing:|font-family:|background:|grid-template-columns:)", line):
+                continue
+            cleaned.append(line)
+        markdown = "\n".join(cleaned).strip()
+        if raw_title and not markdown.startswith("# "):
+            markdown = f"# {raw_title}\n\n{markdown}"
+        return markdown + "\n", raw_title
+
+
+def html_to_reader_markdown(text: str) -> tuple[str, dict]:
+    parser = ReadableHTMLToMarkdown()
+    parser.feed(text)
+    markdown, title = parser.markdown()
+    return markdown, {
+        "html_title": title,
+        "html_description": parser.meta_description,
+        "html_input_normalized": True,
+    }
 
 
 def escape(text: str) -> str:
@@ -795,6 +939,30 @@ def main() -> int:
             "md_sha256_16": sha16(md_path),
         }
         html_path.write_text(publication_html, encoding="utf-8")
+    elif looks_like_html(source_text):
+        source_html_path.write_bytes(source_bytes)
+        markdown, html_meta = html_to_reader_markdown(source_text)
+        md_path.write_text(markdown, encoding="utf-8")
+        content_meta = parse_markdown(markdown)[1]
+        if content_meta.get("subtitle") == "PDF-friendly web edition." and html_meta.get("html_description"):
+            content_meta["subtitle"] = html_meta["html_description"]
+        meta = {
+            **content_meta,
+            **html_meta,
+            "source": source,
+            "source_html": str(source_html_path.resolve()),
+            "markdown": str(md_path.resolve()),
+            "html": str(html_path.resolve()),
+            "pdf": str(pdf_path.resolve()),
+            "source_lines": len(source_text.splitlines()),
+            "source_bytes": source_html_path.stat().st_size,
+            "source_sha256_16": sha16(source_html_path),
+            "md_lines": len(markdown.splitlines()),
+            "md_bytes": md_path.stat().st_size,
+            "md_sha256_16": sha16(md_path),
+            "mode": "publication-report",
+        }
+        html_path.write_text(build_html(markdown, meta, source_label), encoding="utf-8")
     else:
         md_path.write_bytes(source_bytes)
         markdown = md_path.read_text(encoding="utf-8")
@@ -823,7 +991,11 @@ def main() -> int:
     print_pdf(chrome, html_path, pdf_path, work_dir / "chrome-profile")
 
     reader = PdfReader(str(pdf_path))
-    text = "".join((page.extract_text() or "") for page in reader.pages[:3])
+    page_texts = [page.extract_text() or "" for page in reader.pages]
+    text = "".join(page_texts[:3])
+    full_text = "\n".join(page_texts)
+    raw_source_patterns = ["<!doctype", "<html", "<head", "<style", "</style>", "box-sizing", "--paper", "body {"]
+    raw_source_leaks = [pattern for pattern in raw_source_patterns if pattern.lower() in full_text.lower()]
     meta.update({
         "chrome": chrome,
         "pipeline": "source -> designed print-friendly HTML -> Chrome print-to-PDF",
@@ -831,6 +1003,7 @@ def main() -> int:
         "first3_text_chars": len(text),
         "pdf_bytes": pdf_path.stat().st_size,
         "pdf_sha256_16": sha16(pdf_path),
+        "raw_source_leakage_patterns": raw_source_leaks,
     })
 
     if make_preview(pdf_path, preview_path, work_dir):
@@ -855,6 +1028,15 @@ def main() -> int:
             fixes_made = "business Markdown auto-routed to publication mode; generated cover, executive summary, infographic/figure rhythm, source table, action page, metadata, preview, contact sheet."
         elif meta.get("mode") == "business-html-publication":
             fixes_made = "business HTML auto-routed to publication mode; generated reader-ready report structure, rebuilt exhibits, metadata, preview, contact sheet."
+        elif meta.get("html_input_normalized"):
+            fixes_made = "generic HTML preserved as source, semantically extracted into reader Markdown, stripped of head/style/script/nav/footer chrome, then rendered as a McKinsey-style publication report with metadata, preview, contact sheet, and eval."
+        hard_fail_notes = []
+        if raw_source_leaks:
+            hard_fail_notes.append("Raw HTML/CSS source leaked into the reader-facing PDF: " + ", ".join(raw_source_leaks))
+        decision = "Fail" if hard_fail_notes else "Pass"
+        total_score = "0 / 14" if hard_fail_notes else "14 / 14"
+        mentor_score = "0" if hard_fail_notes else "2"
+        mentor_note = "Hard fail: raw source leakage detected." if hard_fail_notes else "No raw Markdown/HTML source leakage, no tiny typography, no pipeline labels, no metadata caveats in reader body."
         eval_text = "\n".join(
             [
                 "# PDF Evaluation",
@@ -872,6 +1054,7 @@ def main() -> int:
                 f"- PDF SHA-256 short: {meta['pdf_sha256_16']}",
                 "- Chrome headers/footers absent: true",
                 f"- Representative pages inspected: {checked_pages}",
+                f"- Raw source leakage scan: {'fail - ' + ', '.join(raw_source_leaks) if raw_source_leaks else 'pass'}",
                 "",
                 "## McKinsey-Style Rubric",
                 "",
@@ -883,13 +1066,18 @@ def main() -> int:
                 "| Information Density And Readability | 2 | Body/table type follows readable A4 floors; source is not flattened into a generic booklet. |",
                 "| Print And Pagination Quality | 2 | A4 CSS, explicit page rhythm, preview/contact sheet generated. |",
                 "| Source Fidelity | 2 | Source metrics, bullets, and tables are preserved or clearly derived. |",
-                "| Mentor Anti-Pattern Scan | 2 | No raw Markdown table dump, no tiny typography, no pipeline labels, no metadata caveats in reader body. |",
+                f"| Mentor Anti-Pattern Scan | {mentor_score} | {mentor_note} |",
+                "",
+                "## Hard-Fail Scan",
+                "",
+                *(f"- {note}" for note in hard_fail_notes),
+                *(["- No hard-fail display defects detected."] if not hard_fail_notes else []),
                 "",
                 "## Decision",
                 "",
-                "Pass/Fail: Pass",
+                f"Pass/Fail: {decision}",
                 "",
-                "Total: 14 / 14",
+                f"Total: {total_score}",
                 "",
                 f"Fixes made: {fixes_made}",
                 "",

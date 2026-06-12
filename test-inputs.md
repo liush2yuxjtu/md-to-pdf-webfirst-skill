@@ -79,7 +79,7 @@ These files already exist in this skill repo and should remain safe to run in pu
 | `supporting-skills/impeccable-publication-design.md` | Markdown adapter docs | Typography/color adapter. | Dense design guidance readability. |
 | `references/business-html-report-regression.md` | Markdown regression reference | Private business HTML lesson without private source. | Whether regression lessons become visible in eval and anti-pattern review. |
 | `docs/index.html` | GitHub Pages HTML | Landing/gallery HTML. | HTML input handling and whether page chrome becomes inappropriate PDF content. |
-| `docs/changelog.html` | GitHub Pages HTML | Changelog/gallery page HTML. | Gallery/card content extraction and printability. |
+| `docs/changelog.html` | GitHub Pages HTML | Changelog/gallery page HTML. | Gallery/card content extraction, McKinsey-style publication cover, and hard fail if raw `<!doctype` / `<style>` / CSS source prints as PDF text. |
 
 ## Private Or Local Regression Inputs
 
