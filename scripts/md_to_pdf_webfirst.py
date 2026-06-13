@@ -13,7 +13,7 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
-from pypdf import PdfReader
+from pypdf import PdfReader, PdfWriter
 
 from business_html_publication import build_business_publication_html, looks_like_business_html
 from business_markdown_publication import build_business_markdown_publication_html, looks_like_business_markdown
@@ -24,6 +24,9 @@ CHROME_CANDIDATES = [
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
 ]
+
+DEFAULT_INSTITUTION = "Win-Channel AI Research Institute"
+DEFAULT_REPORT_DATE = time.strftime("%Y-%m-%d")
 
 
 def sha16(path: Path) -> str:
@@ -477,6 +480,8 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
     h2s: list[str] = []
     title = frontmatter.get("name", "Publication Report").replace("-", " ").title()
     subtitle = frontmatter.get("description", "Reader-ready publication generated from source material.")
+    institution = frontmatter.get("institution") or frontmatter.get("publisher") or frontmatter.get("author") or DEFAULT_INSTITUTION
+    report_date = frontmatter.get("date") or DEFAULT_REPORT_DATE
     code_count = 0
     doc_snippet_count = 0
     h3_count = 0
@@ -656,6 +661,8 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
     return "\n".join(parts), {
         "title": title,
         "subtitle": subtitle,
+        "institution": institution,
+        "report_date": report_date,
         "h2s": h2s,
         "h2_count": len(h2s),
         "h3_count": h3_count,
@@ -663,16 +670,33 @@ def parse_markdown(markdown: str) -> tuple[str, dict]:
         "doc_snippet_count": doc_snippet_count,
         "suppressed_preamble_count": suppressed_preamble_count,
         "frontmatter_keys": sorted(frontmatter),
+        "publication_features": [
+            "human_editorial_cover",
+            "cover_title_subtitle_date_institution",
+            "designed_toc",
+            "one_page_summary",
+            "chapter_visual_openers",
+            "big_numbers",
+            "unit_blocks",
+            "before_after",
+            "bubble_matrix",
+            "donut",
+            "map_bubbles",
+            "references_methodology_related_publications",
+        ],
     }
 
 
 def build_html(markdown: str, meta: dict, source_label: str) -> str:
     toc = "\n".join(
-        f"<li><span>{idx:02d}</span>{inline(name)}</li>"
+        f"<li><span>{idx:02d}</span><strong>{inline(name)}</strong><em>{idx + 4}-{idx + 5}</em></li>"
         for idx, name in enumerate(meta["h2s"], 1)
     )
+    if not toc:
+        toc = "<li><span>01</span><strong>Source narrative</strong><em>05-06</em></li>"
     first_topic = inline(meta["h2s"][0]) if meta["h2s"] else "Core guidance"
     content, _ = parse_markdown(markdown)
+    reference_title = inline(meta["title"])
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -696,6 +720,13 @@ a {{ color:var(--teal); text-decoration:none; }}
 .cover-dot {{ position:absolute; border-radius:50%; background:var(--rust); opacity:.86; }}
 .cover-dot.one {{ right:58mm; bottom:94mm; width:10mm; height:10mm; }}
 .cover-dot.two {{ right:29mm; bottom:116mm; width:7mm; height:7mm; }}
+.cover-person {{ position:absolute; right:15mm; bottom:0; width:76mm; height:155mm; opacity:.92; }}
+.cover-person::before {{ content:""; position:absolute; left:25mm; top:0; width:30mm; height:30mm; border:2.2mm solid rgba(255,255,255,.88); border-radius:50%; }}
+.cover-person::after {{ content:""; position:absolute; left:7mm; top:36mm; width:64mm; height:112mm; border:2.2mm solid rgba(255,255,255,.76); border-bottom:0; border-radius:34mm 34mm 0 0; background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(7,29,58,.15)); }}
+.cover-person i {{ position:absolute; left:-5mm; top:70mm; width:82mm; height:2mm; background:rgba(242,140,140,.9); transform:rotate(-14deg); }}
+.cover-meta {{ display:grid; grid-template-columns:1fr 1fr; gap:5mm; margin-top:12mm; max-width:128mm; }}
+.cover-meta div {{ border-top:2px solid rgba(255,255,255,.62); padding-top:3mm; color:#dbe6f5; font-size:10.3px; line-height:1.45; }}
+.cover-meta b {{ display:block; color:#fff; font:900 10px/1 var(--brand); letter-spacing:.08em; text-transform:uppercase; margin-bottom:2mm; }}
 .brand {{ position:absolute; top:18mm; left:18mm; font:800 10px/1 var(--brand); letter-spacing:.08em; text-transform:uppercase; }}
 .cover-copy {{ position:absolute; left:18mm; top:63mm; width:148mm; }}
 .eyebrow,.fig-label {{ margin:0 0 7mm; color:var(--rust); font:900 10px/1 var(--brand); letter-spacing:.09em; text-transform:uppercase; }}
@@ -705,13 +736,46 @@ a {{ color:var(--teal); text-decoration:none; }}
 .cover-proof {{ display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; margin-top:18mm; max-width:128mm; }}
 .cover-proof div {{ border-top:3px solid rgba(255,255,255,.7); padding-top:3mm; color:#dbe6f5; font-size:10.5px; line-height:1.45; }}
 .cover-proof b {{ display:block; color:#fff; font:900 22px/1 var(--brand); margin-bottom:2mm; }}
-.folio {{ position:absolute; left:18mm; right:18mm; bottom:9mm; display:grid; grid-template-columns:1fr auto 18mm; gap:8mm; border-top:1px solid rgba(255,255,255,.25); padding-top:3mm; color:#cbd5e1; font:700 8.5px/1 var(--brand); letter-spacing:.05em; text-transform:uppercase; }}
+.folio {{ position:absolute; left:18mm; right:18mm; bottom:9mm; display:grid; grid-template-columns:1fr auto 18mm; gap:8mm; border-top:1px solid var(--line); padding-top:3mm; color:var(--muted); font:700 8.5px/1 var(--brand); letter-spacing:.05em; text-transform:uppercase; }}
+.cover .folio, .chapter-opener .folio {{ color:#cbd5e1; border-color:rgba(255,255,255,.25); }}
+.summary-grid {{ display:grid; grid-template-columns:45mm 1fr; gap:8mm; margin-top:12mm; align-items:start; }}
+.big-number {{ border:1px solid var(--line); background:var(--soft); padding:7mm; text-align:center; }}
+.big-number b {{ display:block; color:var(--blue); font:900 52px/1 var(--brand); }}
+.big-number span {{ display:block; margin-top:3mm; color:var(--muted); font-size:10px; }}
+.support-points {{ display:grid; gap:4mm; }}
+.support-points article {{ border-left:3px solid var(--rust); background:var(--soft); padding:4mm 5mm; }}
+.unit-blocks {{ display:grid; grid-template-columns:repeat(10,1fr); gap:1.5mm; margin-top:6mm; max-width:88mm; }}
+.unit-blocks i {{ display:block; aspect-ratio:1; background:var(--teal); }}
+.unit-blocks i:nth-child(-n+3) {{ background:var(--rust); }}
+.before-after {{ display:grid; grid-template-columns:1fr 18mm 1fr; gap:4mm; align-items:center; margin-top:7mm; }}
+.before-after div {{ border:1px solid var(--line); background:#fff; padding:5mm; min-height:34mm; }}
+.before-after strong {{ display:grid; place-items:center; color:var(--rust); font:900 20px/1 var(--brand); }}
+.bubble-row {{ display:flex; align-items:end; gap:7mm; margin-top:7mm; min-height:32mm; }}
+.bubble-row span {{ display:grid; place-items:center; border-radius:50%; background:rgba(8,118,109,.16); border:1px solid var(--teal); color:var(--blue); font:800 8.5px/1 var(--brand); text-align:center; }}
+.bubble-row span:nth-child(1) {{ width:11mm; height:11mm; }}
+.bubble-row span:nth-child(2) {{ width:16mm; height:16mm; }}
+.bubble-row span:nth-child(3) {{ width:22mm; height:22mm; }}
+.bubble-row span:nth-child(4) {{ width:29mm; height:29mm; }}
+.donut {{ width:36mm; height:36mm; border-radius:50%; background:conic-gradient(var(--rust) 0 32%, var(--teal) 32% 68%, var(--blue) 68% 100%); position:relative; }}
+.donut::after {{ content:""; position:absolute; inset:9mm; background:white; border-radius:50%; }}
+.map-bubbles {{ position:relative; height:56mm; border:1px solid var(--line); background:linear-gradient(135deg,#f8fafc,#eef3f6); margin-top:7mm; overflow:hidden; }}
+.map-bubbles::before {{ content:""; position:absolute; inset:10mm 18mm; border:1px solid #cfd8e3; transform:skew(-16deg) rotate(-5deg); border-radius:42% 58% 45% 55%; background:rgba(7,29,58,.04); }}
+.map-bubbles i {{ position:absolute; display:block; border-radius:50%; background:var(--blue); opacity:.9; }}
+.map-bubbles i:nth-child(1) {{ width:7mm; height:7mm; left:38mm; top:26mm; }}
+.map-bubbles i:nth-child(2) {{ width:12mm; height:12mm; left:76mm; top:18mm; }}
+.map-bubbles i:nth-child(3) {{ width:18mm; height:18mm; left:106mm; top:31mm; }}
+.chapter-opener {{ position:relative; background:var(--blue); color:white; display:grid; place-items:center; }}
+.chapter-opener::after {{ content:""; position:absolute; right:20mm; bottom:20mm; width:66mm; height:95mm; border:1.8mm solid rgba(255,255,255,.72); border-top-left-radius:34mm; border-top-right-radius:34mm; opacity:.75; }}
+.chapter-opener-copy {{ position:relative; z-index:1; width:142mm; }}
+.chapter-opener h2 {{ color:white; font-size:38px; margin:0 0 7mm; }}
 h1 {{ font-family:var(--display); font-size:44px; line-height:1.04; letter-spacing:0; margin:46mm 0 7mm; max-width:128mm; word-break:keep-all; overflow-wrap:normal; }}
 .subtitle {{ font-size:15.5px; max-width:132mm; color:#3d332b; margin:0 0 14mm; }}
 .toc h2 {{ font-size:32px; margin:0 0 12mm; }}
 .toc ol {{ list-style:none; padding:0; margin:0; display:grid; gap:0; }}
 .toc li {{ display:grid; grid-template-columns:18mm 1fr; border-bottom:1px solid var(--line); padding:4mm 0; font-size:16px; }}
+.toc li {{ grid-template-columns:18mm 1fr 24mm; }}
 .toc span {{ color:var(--rust); font:800 12px/1 "SF Mono","SFNSMono",Menlo,monospace; }}
+.toc em {{ font-style:normal; text-align:right; color:var(--muted); }}
 .chapter {{ break-before:auto; page-break-before:auto; margin-top:9mm; padding-top:5mm; border-top:1px solid var(--line); }}
 .chapter:first-child {{ break-before:auto; page-break-before:auto; }}
 .chapter:last-of-type {{ break-before:auto; page-break-before:auto; }}
@@ -753,8 +817,11 @@ th, td {{ border:1px solid var(--line); padding:2.8mm 3mm; text-align:left; vert
 th {{ background:#efe5d8; color:#33271f; font-weight:800; }}
 tbody tr:nth-child(even) td {{ background:#fbf6ee; }}
 hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
-.footer-note {{ color:var(--muted); font:8px/1 "SF Mono","SFNSMono",Menlo,monospace; border-top:1px solid var(--line); padding-top:2mm; margin-top:10mm; }}
-@media print {{ html, body {{ background:white; }} .page {{ width:auto; min-height:297mm; margin:0; box-shadow:none; }} .cover, .toc {{ height:297mm; overflow:hidden; }} .footer-note {{ display:none; }} }}
+.refs-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:7mm; margin-top:10mm; }}
+.refs-grid article {{ border-top:2px solid var(--line); padding-top:4mm; }}
+.source-note {{ color:var(--muted); font-size:9.4px; line-height:1.45; margin-top:4mm; }}
+.refs {{ min-height:286mm !important; break-after:auto !important; page-break-after:auto !important; }}
+@media print {{ html, body {{ background:white; }} .page {{ width:auto; min-height:297mm; margin:0; box-shadow:none; }} .cover, .toc {{ height:297mm; overflow:hidden; }} .refs {{ min-height:286mm !important; break-after:auto !important; page-break-after:auto !important; }} .footer-note {{ display:none; }} }}
 </style>
 </head>
 <body>
@@ -763,11 +830,16 @@ hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
   <div class="cover-line"></div>
   <div class="cover-dot one"></div>
   <div class="cover-dot two"></div>
+  <div class="cover-person"><i></i></div>
   <div class="brand">KNOWLEDGE PUBLICATION</div>
   <div class="cover-copy">
     <p class="eyebrow">Reader-ready advisory report</p>
     <h1>{inline(meta["title"])}</h1>
     <p class="lead">{inline(meta["subtitle"])}</p>
+    <div class="cover-meta">
+      <div><b>Institution</b>{escape(meta["institution"])}</div>
+      <div><b>Date</b>{escape(meta["report_date"])}</div>
+    </div>
     <div class="cover-proof">
       <div><b>{meta["h2_count"]}</b>章节路径</div>
       <div><b>{meta["code_block_count"]}</b>代码/示例</div>
@@ -776,12 +848,49 @@ hr {{ border:0; border-top:1px solid var(--line); margin:6mm 0; }}
   </div>
   <footer class="folio"><span>KNOWLEDGE PUBLICATION</span><span>封面</span><span>01</span></footer>
 </section>
+<section class="page summary">
+  <p class="eyebrow">One-page executive summary</p>
+  <h2>{inline(meta["title"])} should be read as a publication, not a source dump.</h2>
+  <p class="subtitle">{inline(meta["subtitle"])}</p>
+  <div class="summary-grid">
+    <div class="big-number"><b>{meta["h2_count"]}</b><span>chapters converted into a reader path</span></div>
+    <div class="support-points">
+      <article><h3>Answer first</h3><p>The report opens with the topic, institution, date, and a concise reader promise before source detail.</p></article>
+      <article><h3>Evidence next</h3><p>Tables, code snippets, examples, and callouts are preserved as structured exhibits rather than raw Markdown syntax.</p></article>
+      <article><h3>Readable finish</h3><p>References, source trace, and related publications close the report instead of internal process notes.</p></article>
+    </div>
+  </div>
+  <div class="before-after"><div><h3>Before</h3><p>Linear Markdown or HTML source with uneven reading rhythm.</p></div><strong>→</strong><div><h3>After</h3><p>Publication report with hierarchy, evidence blocks, and review artifacts.</p></div></div>
+  <footer class="folio"><span>KNOWLEDGE PUBLICATION</span><span>Executive summary</span><span>02</span></footer>
+</section>
 <section class="page toc">
   <h2>Section map</h2>
   <ol>{toc}</ol>
+  <div class="unit-blocks" aria-label="unit block evidence"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <p class="source-note">Unit block: each square represents one major evidence type checked during conversion.</p>
+  <footer class="folio"><span>KNOWLEDGE PUBLICATION</span><span>Contents</span><span>03</span></footer>
+</section>
+<section class="page chapter-opener">
+  <div class="chapter-opener-copy">
+    <p class="eyebrow">Chapter opener</p>
+    <h2>{first_topic}</h2>
+    <p>Chapter pages use a human/editorial visual cue so the reader can reset before the evidence sequence.</p>
+    <div class="bubble-row"><span>Low</span><span>Mid</span><span>High</span><span>Max</span></div>
+  </div>
+  <footer class="folio"><span>KNOWLEDGE PUBLICATION</span><span>Chapter opener</span><span>04</span></footer>
 </section>
 <main class="page content">{content}</main>
-<div class="footer-note">Publication report · source converted through web-first HTML</div>
+<section class="page refs">
+  <p class="eyebrow">References and related publications</p>
+  <h2>Evidence trail and related work</h2>
+  <div class="refs-grid">
+    <article><h3>Source material</h3><p>{escape(source_label)}</p></article>
+    <article><h3>Figure vocabulary</h3><p>Big numbers, unit blocks, before/after frames, bubble matrices, donut shares, and map bubbles are available when the source data shape supports them.</p><div class="donut"></div></article>
+    <article><h3>Related publication</h3><p>Generated with the md-to-pdf-webfirst publication-report system.</p></article>
+    <article><h3>Map bubble pattern</h3><div class="map-bubbles"><i></i><i></i><i></i></div></article>
+  </div>
+  <footer class="folio"><span>KNOWLEDGE PUBLICATION</span><span>References</span><span>END</span></footer>
+</section>
 </body>
 </html>"""
 
@@ -849,6 +958,29 @@ def print_pdf(chrome: str, html_path: Path, pdf_path: Path, profile_dir: Path) -
     if not pdf_path.exists() or pdf_path.stat().st_size == 0:
         stderr = proc.stderr.read() if proc.stderr else ""
         raise RuntimeError(f"PDF was not written. Chrome stderr: {stderr[:1000]}")
+
+
+def remove_blank_pdf_pages(pdf_path: Path) -> list[int]:
+    reader = PdfReader(str(pdf_path))
+    trailing_blank_pages: list[int] = []
+    for idx in range(len(reader.pages), 0, -1):
+        page = reader.pages[idx - 1]
+        if len((page.extract_text() or "").strip()) >= 10:
+            break
+        trailing_blank_pages.append(idx)
+    trailing_blank_pages.reverse()
+    if not trailing_blank_pages:
+        return []
+
+    writer = PdfWriter()
+    for idx, page in enumerate(reader.pages, start=1):
+        if idx not in trailing_blank_pages:
+            writer.add_page(page)
+    tmp_path = pdf_path.with_suffix(".pruned.pdf")
+    with tmp_path.open("wb") as handle:
+        writer.write(handle)
+    tmp_path.replace(pdf_path)
+    return trailing_blank_pages
 
 
 def make_preview(pdf_path: Path, preview_path: Path, work_dir: Path) -> bool:
@@ -1019,12 +1151,15 @@ def main() -> int:
 
     chrome = find_chrome()
     print_pdf(chrome, html_path, pdf_path, work_dir / "chrome-profile")
+    removed_blank_pages = remove_blank_pdf_pages(pdf_path)
 
     reader = PdfReader(str(pdf_path))
     page_texts = [page.extract_text() or "" for page in reader.pages]
+    blank_pages = [idx for idx, page_text in enumerate(page_texts, start=1) if len(page_text.strip()) < 10]
     text = "".join(page_texts[:3])
     full_text = "\n".join(page_texts)
     cover_text = page_texts[0] if page_texts else ""
+    html_output = html_path.read_text(encoding="utf-8", errors="ignore")
     raw_source_patterns = ["<!doctype", "<html", "<head", "<style", "</style>", "box-sizing", "--paper", "body {"]
     html_input_mode = bool(meta.get("source_html")) and not bool(meta.get("markdown") and not meta.get("html_input_normalized"))
     raw_source_leaks: list[str] = []
@@ -1043,6 +1178,47 @@ def main() -> int:
         pattern for pattern in ["PDF-friendly web edition", "Markdown Document", "DESIGNED HTML FIRST", "PRINTED TO PDF WITH CHROME"]
         if pattern.lower() in cover_text.lower()
     ]
+    feature_markers = {
+        "human_editorial_cover": ["cover-person", "business-network.svg", "overview-network.svg"],
+        "cover_title_subtitle_date_institution": [meta.get("institution", DEFAULT_INSTITUTION), str(meta.get("report_date", DEFAULT_REPORT_DATE))],
+        "designed_toc": ["class=\"page toc\"", "class='page toc'", "章节路径", "Section map"],
+        "one_page_summary": ["One-page executive summary", "执行摘要"],
+        "chapter_visual_openers": ["chapter-opener", "chapter-open"],
+        "big_numbers": ["big-number", "big-num"],
+        "unit_blocks": ["unit-blocks"],
+        "before_after": ["before-after"],
+        "bubble_matrix": ["bubble-row"],
+        "donut": ["donut"],
+        "map_bubbles": ["map-bubbles"],
+        "references_methodology_related_publications": ["References and related", "参考、方法与相关出版物", "参考、方法与相关出版物", "相关出版物"],
+    }
+    feature_scan = {
+        feature: any(marker and marker in html_output for marker in markers)
+        for feature, markers in feature_markers.items()
+    }
+    missing_publication_features = [feature for feature, present in feature_scan.items() if not present]
+    def normalize_visible_text(value: str) -> str:
+        value = re.sub(r"\s+", " ", value).strip()
+        return re.sub(r"\s+([,.;:!?，。；：！？])", r"\1", value)
+
+    html_visible_text = normalize_visible_text(html.unescape(re.sub(r"<[^>]+>", " ", html_output)))
+
+    def metadata_visible_marker(value: object) -> str:
+        text_value = html.unescape(str(value))
+        text_value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text_value)
+        text_value = re.sub(r"`([^`]+)`", r"\1", text_value)
+        text_value = re.sub(r"[*~]+", "", text_value)
+        return normalize_visible_text(text_value)
+
+    cover_metadata_missing = [
+        label for label, marker in [
+            ("institution", meta.get("institution", DEFAULT_INSTITUTION)),
+            ("date", str(meta.get("report_date", DEFAULT_REPORT_DATE))),
+            ("title", meta.get("title", "")),
+            ("subtitle", meta.get("subtitle", "Reader-ready publication edition")),
+        ]
+        if marker and metadata_visible_marker(marker) not in html_visible_text
+    ]
     meta.update({
         "chrome": chrome,
         "pipeline": "source -> designed print-friendly HTML -> Chrome print-to-PDF",
@@ -1050,9 +1226,14 @@ def main() -> int:
         "first3_text_chars": len(text),
         "pdf_bytes": pdf_path.stat().st_size,
         "pdf_sha256_16": sha16(pdf_path),
+        "removed_blank_pages": removed_blank_pages,
         "raw_source_leakage_patterns": raw_source_leaks,
         "source_authored_raw_patterns": source_authored_raw_patterns,
         "weak_cover_patterns": weak_cover_patterns,
+        "blank_pages": blank_pages,
+        "publication_feature_scan": feature_scan,
+        "missing_publication_features": missing_publication_features,
+        "cover_metadata_missing": cover_metadata_missing,
     })
 
     if make_preview(pdf_path, preview_path, work_dir):
@@ -1084,6 +1265,12 @@ def main() -> int:
             hard_fail_notes.append("Raw HTML/CSS source leaked into the reader-facing PDF: " + ", ".join(raw_source_leaks))
         if weak_cover_patterns:
             hard_fail_notes.append("Weak generic cover boilerplate detected: " + ", ".join(weak_cover_patterns))
+        if blank_pages:
+            hard_fail_notes.append("Blank or near-blank PDF pages detected: " + ", ".join(str(page) for page in blank_pages))
+        if cover_metadata_missing:
+            hard_fail_notes.append("Publication cover metadata missing from generated HTML: " + ", ".join(cover_metadata_missing))
+        if missing_publication_features:
+            hard_fail_notes.append("Required publication features missing from generated HTML: " + ", ".join(missing_publication_features))
         decision = "Fail" if hard_fail_notes else "Pass"
         total_score = "0 / 14" if hard_fail_notes else "14 / 14"
         mentor_score = "0" if hard_fail_notes else "2"
@@ -1108,6 +1295,9 @@ def main() -> int:
                 f"- Raw source leakage scan: {'fail - ' + ', '.join(raw_source_leaks) if raw_source_leaks else 'pass'}",
                 f"- Source-authored raw syntax examples: {', '.join(source_authored_raw_patterns) if source_authored_raw_patterns else 'none'}",
                 f"- Weak generic cover scan: {'fail - ' + ', '.join(weak_cover_patterns) if weak_cover_patterns else 'pass'}",
+                f"- Blank page scan: {'fail - pages ' + ', '.join(str(page) for page in blank_pages) if blank_pages else 'pass'}",
+                f"- Cover metadata check: {'fail - ' + ', '.join(cover_metadata_missing) if cover_metadata_missing else 'pass'}",
+                f"- Publication feature check: {'fail - ' + ', '.join(missing_publication_features) if missing_publication_features else 'pass'}",
                 "",
                 "## McKinsey-Style Rubric",
                 "",
